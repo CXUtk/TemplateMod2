@@ -1,0 +1,2 @@
+﻿TemplateMod2 是裙中世界Mod教程的附带Mod，Mod制作者们可以用这个Mod的源代码作为起点，不断完善属于自己的Mod。
+该Mod的后续更改将会发在Github上，敬请留意。
