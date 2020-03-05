@@ -13,4 +13,7 @@
   <Target Name="BuildMod" AfterTargets="Build">
     <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
   </Target>
+  <ItemGroup>
+    <None Remove="TemplateMod2.zip" />
+  </ItemGroup>
 </Project>
