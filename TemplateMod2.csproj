@@ -14,6 +14,18 @@
     <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
   </Target>
   <ItemGroup>
+    <None Remove="Effects\logfile.txt" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Game.dll" />
+    <None Remove="Effects\Microsoft.Xna.Framework.Graphics.dll" />
+    <None Remove="Effects\XNBCompiler.exe" />
     <None Remove="TemplateMod2.zip" />
   </ItemGroup>
 </Project>
