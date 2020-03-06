@@ -1,4 +1,9 @@
-﻿using Terraria.ModLoader;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.Graphics.Effects;
+using Terraria.Graphics.Shaders;
+using Terraria.ModLoader;
 
 // 命名空间，注意它要与文件夹的名字相同
 namespace TemplateMod2 {
@@ -11,11 +16,27 @@ namespace TemplateMod2 {
 
         // 构造函数
         public TemplateMod2() {
-            instance = this;
         }
-
+        public override void Load() {
+            instance = this;
+            Filters.Scene["TemplateMod:Gray"] = new Filter(
+                new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/fuzzy")), "Test"), EffectPriority.Medium);
+            Filters.Scene["TemplateMod:Gray"].Load();
+            base.Load();
+        }
+        public override void Unload() {
+            instance = null;
+            Filters.Scene["TemplateMod:Gray"].Deactivate();
+            base.Unload();
+        }
         public static TemplateMod2 Instance {
             get;
+        }
+
+        public override void PreUpdateEntities() {
+            if (!Filters.Scene["TemplateMod:Gray"].IsActive()) {
+                Filters.Scene.Activate("TemplateMod:Gray");
+            }
         }
     }
 }
