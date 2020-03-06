@@ -1,19 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\references\tModLoader.targets" />
-  <PropertyGroup>
-    <AssemblyName>TemplateMod2</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningLevel>3</WarningLevel>
-  </PropertyGroup>
-  <Target Name="BuildMod" AfterTargets="Build">
-    <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
-  </Target>
-  <ItemGroup>
-    <None Remove="TemplateMod2.zip" />
-  </ItemGroup>
+    <Import Project="..\..\references\tModLoader.targets" />
+    <PropertyGroup>
+        <AssemblyName>TemplateMod2</AssemblyName>
+        <TargetFramework>net45</TargetFramework>
+        <PlatformTarget>x86</PlatformTarget>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <WarningLevel>3</WarningLevel>
+    </PropertyGroup>
+    <Target Name="BuildMod" AfterTargets="Build">
+        <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
+    </Target>
+    <ItemGroup>
+        <None Remove="Effects\logfile.txt" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Game.dll" />
+        <None Remove="Effects\Microsoft.Xna.Framework.Graphics.dll" />
+        <None Remove="Effects\XNBCompiler.exe" />
+        <None Remove="TemplateMod2.zip" />
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Effects\" />
+    </ItemGroup>
 </Project>

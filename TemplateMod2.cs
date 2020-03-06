@@ -11,7 +11,15 @@ namespace TemplateMod2 {
 
         // 构造函数
         public TemplateMod2() {
+        }
+
+        public override void Load() {
             instance = this;
+            base.Load();
+        }
+        public override void Unload() {
+            instance = null;
+            base.Unload();
         }
 
         public static TemplateMod2 Instance {
