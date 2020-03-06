@@ -120,7 +120,7 @@ namespace TemplateMod2.Items {
 
         // 控制这把枪使用时候的重写函数
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            return false;
+            return true;
         }
 
 
