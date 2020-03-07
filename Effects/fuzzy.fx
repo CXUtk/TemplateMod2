@@ -2,7 +2,7 @@
 // ----------------------------
 // 以下参数*必须*添加
 // 因为这些参数都有原版的默认传入值
-// 如果缺失将导致NullReference Exception
+// 如果缺失将导致Null Reference Exception
 // 0号采样贴图
 sampler uImage0 : register(s0);
 // 1号采样贴图
@@ -30,26 +30,27 @@ float gauss[3][3] = {
     0.124, 0.204, 0.124,
     0.075, 0.124, 0.075
 };
-
-float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0
-{
-    float4 color = tex2D(uImage0, coords);
-    if (!any(color))
-        return color;
-    float2 pixelS = float2(1.0 / uScreenResolution.x, 1.0 / uScreenResolution.y);
-    float4 blend = color;
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            blend += gauss[i + 1][j + 1] * tex2D(uImage0, float2(coords.x + i * pixelS.x, coords.y + j * pixelS.y));
-        }
-    }
-    return blend;
+float mod(float x, float y) {
+	return x - y * floor(x / y);
 }
 
-technique Technique1
-{
-    pass Test
-    {
-        PixelShader = compile ps_2_0 PixelShaderFunction();
-    }
+
+float2 rotate(float2 vec, float r) {
+	return mul(float1x2(vec), float2x2(cos(r), -sin(r), sin(r), cos(r)));
+}
+
+
+float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
+	float4 color = tex2D(uImage0, coords);
+	if (!any(color))
+		return color;
+	float2 dis = coords - float2(0.5, 0.5);
+	float l = 1 + sin(length(dis) * 20) * 0.5;
+	return tex2D(uImage0, float2(0.5, 0.5) + dis * l);
+}
+
+technique Technique1 {
+	pass Test {
+		PixelShader = compile ps_2_0 PixelShaderFunction();
+	}
 }

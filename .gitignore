@@ -344,3 +344,4 @@ Properties/
 Effects/*.dll
 Effects/*.exe
 Effects/*.txt
+Effects/Content/*
