@@ -20,7 +20,7 @@ namespace TemplateMod2 {
         public override void Load() {
             instance = this;
             Filters.Scene["TemplateMod:Gray"] = new Filter(
-                new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/fuzzy")), "Test"), EffectPriority.Medium);
+                new TestScreenShaderData(new Ref<Effect>(GetEffect("Effects/fuzzy")), "Test"), EffectPriority.Medium);
             Filters.Scene["TemplateMod:Gray"].Load();
             base.Load();
         }
