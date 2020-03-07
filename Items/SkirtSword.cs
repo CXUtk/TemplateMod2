@@ -70,7 +70,7 @@ namespace TemplateMod2.Items {
             item.value = Item.sellPrice(0, 1, 60, 0);
 
             // 物品的稀有度，由-1到13越来越高，具体参考维基百科
-            //https://terraria.gamepedia.com/Rarity 或者裙中世界的补充栏目
+            // https://terraria.gamepedia.com/Rarity 或者裙中世界的补充栏目
             item.rare = 1;
 
             // 设置这个物品使用时发出的声音，以后会讲到怎么调出其他声音
