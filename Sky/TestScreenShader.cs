@@ -24,12 +24,12 @@ namespace TemplateMod2 {
         }
 
         public override void Apply() {
-            try {
-                this.Shader.Parameters["uEffectPos"].SetValue(Main.MouseScreen);
-                base.Apply();
-            } catch (Exception ex) {
-                WorldGen.SaveAndQuit();
-            }
+            this.Shader.Parameters["uEffectPos"].SetValue(Main.MouseScreen);
+            UseIntensity(TemplateMod2.Strength);
+            UseProgress(TemplateMod2.Progress);
+            UseImage(TemplateMod2.Instance.GetTexture("Images/noise1"), 0, SamplerState.LinearClamp);
+            base.Apply();
+
         }
 
     }

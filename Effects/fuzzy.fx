@@ -46,6 +46,7 @@ float lenFix(float2 vec) {
 
 float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 	float4 color = tex2D(uImage0, coords);
+	float4 color2 = tex2D(uImage1, coords + float2(uTime, 0) * 0.1);
 	if (!any(color))
 		return color;
 	// float2 uv = uTargetPosition / uScreenResolution;
@@ -53,10 +54,11 @@ float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 	float2 dis = (coords - uv) * float2(uScreenResolution.x / uScreenResolution.y, 1);
 	
 	float distance = length(dis);
-	if (distance > 0.3)
+	if (distance > 0.5)
 		return color;
-	float l = abs(sin((distance / 0.3) * 3.14));
-	return tex2D(uImage0, uv + dis * l);
+	float rad = atan2(dis.y, dis.x);
+	float l = 0.5 + color2.r * 0.5;
+	return tex2D(uImage0, coords + float2(color2.r, color.g) * lerp(1.0, 0, distance / 0.5) * 0.03);
 }
 technique Technique1 {
 	pass Test {

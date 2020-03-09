@@ -82,20 +82,23 @@ namespace TemplateMod2.Items {
             item.autoReuse = true;
         }
 
+        public override bool UseItem(Player player) {
+            TemplateMod2.Strength = 3.14f;
+            TemplateMod2.Progress = 0;
+            return base.UseItem(player);
+        }
+
         // 物品合成表的设置部分
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
-            // 合成材料，需要10个泥土块
-            recipe.AddIngredient(ItemID.DirtBlock, 10);
-            // 以及在工作台旁边
+            recipe.AddIngredient(ItemID.GoldBar, 5);
+            recipe.AddIngredient(ItemID.IronBar, 5);
+            recipe.AddIngredient(ItemID.Torch, 25);
             recipe.AddTile(TileID.WorkBenches);
-            // 生成1个这种物品
-            recipe.SetResult(this);
-            // 这样可以生成50个
-            // recipe.SetResult(this, 50);
-
-            // 把这个合成表装进tr的系统里
+            recipe.AddTile(TileID.Anvils);
+            recipe.SetResult(this, 99);
             recipe.AddRecipe();
+
         }
     }
 }

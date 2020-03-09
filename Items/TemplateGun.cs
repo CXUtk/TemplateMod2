@@ -53,8 +53,8 @@ namespace TemplateMod2.Items {
             // 这个数值越低越快，因为TR游戏速度每秒是60帧，这里的10就是
             // 10.0 / 60.0 = 0.1666... 秒使用1次！也就是一秒6次
             // 一般来说我们要把这两个值设成一样，但也有例外的时候，我们以后会讲
-            item.useTime = 10;
-            item.useAnimation = 10;
+            item.useTime = 90;
+            item.useAnimation = 90;
 
             // 使用方式，这个值决定了武器使用时到底是按什么样的动画播放
             // 1 代表挥动，也就是剑类武器！
@@ -74,7 +74,7 @@ namespace TemplateMod2.Items {
             // magic 代表膜法，不，魔法
             // summon 代表召唤
             // thrown 代表投掷
-            item.ranged = true;
+            item.melee = true;
 
             // 物品的价格，这里用sellPrice，也就是卖出物品的价格作为基准
             item.value = Item.sellPrice(0, 1, 0, 0);
@@ -100,7 +100,7 @@ namespace TemplateMod2.Items {
             // noMelee代表这个武器使用的时候贴图会不会造成伤害
             // 如果你希望开枪的时候你的手枪还能敲在敌人头上就把它设为false
             // 反正我不希望：（，就当枪本身没有伤害吧
-            item.noMelee = true;
+            item.noMelee = false;
 
             // 决定枪射出点什么和射出的速度的量
             // 这里我让枪射出子弹，并且以 （7像素 / 帧） 的速度射出去
@@ -111,7 +111,7 @@ namespace TemplateMod2.Items {
             // 你也可以删（或者注释）掉这一句，这样枪就什么都不消耗了
             //【重要】如果设置了消耗什么弹药，那么之前shoot设置的值就会被弹药物品的属性所覆盖
             // 也就是说，你到底射出的是什么就由弹药决定了！
-            item.useAmmo = AmmoID.Bullet;
+            item.useAmmo = AmmoID.;
 
             // 好了，到这里差不多就是一个普通的枪需要填写的属性了
             // 至于更高级的枪怎么制作，嘿嘿，往后看吧。

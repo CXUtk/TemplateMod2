@@ -12,31 +12,33 @@ namespace TemplateMod2 {
     public class TemplateMod2 : Mod {
 
         // 给一个实例指针，以后会非常有用的
-        private static TemplateMod2 instance;
+        public static TemplateMod2 Instance;
+        public static float Strength;
+        public static float Progress;
 
         // 构造函数
         public TemplateMod2() {
         }
         public override void Load() {
-            instance = this;
+            Instance = this;
             Filters.Scene["TemplateMod:Gray"] = new Filter(
                 new TestScreenShaderData(new Ref<Effect>(GetEffect("Effects/fuzzy")), "Test"), EffectPriority.Medium);
             Filters.Scene["TemplateMod:Gray"].Load();
             base.Load();
         }
         public override void Unload() {
-            instance = null;
+            Instance = null;
             Filters.Scene["TemplateMod:Gray"].Deactivate();
             base.Unload();
         }
-        public static TemplateMod2 Instance {
-            get;
-        }
+
 
         public override void PreUpdateEntities() {
             if (!Filters.Scene["TemplateMod:Gray"].IsActive()) {
                 Filters.Scene.Activate("TemplateMod:Gray");
             }
+            if (Strength > 0) Strength -= 0.1f;
+            if (Progress < 1.0) Progress += 0.02f;
         }
     }
 }
