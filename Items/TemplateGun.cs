@@ -102,7 +102,7 @@ namespace TemplateMod2.Items {
             // 反正我不希望：（，就当枪本身没有伤害吧
             item.noMelee = true;
 
-            // 决定枪射出点什么和射出的速度的量
+            // 决定这个物品使用时射出点什么和射出的速度的量
             // 这里我让枪射出子弹，并且以 （7像素 / 帧） 的速度射出去
             item.shoot = ProjectileID.Bullet;
             item.shootSpeed = 7f;

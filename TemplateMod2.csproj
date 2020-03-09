@@ -14,6 +14,11 @@
         <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
     </Target>
     <ItemGroup>
+      <Compile Remove="Effects\Content\**" />
+      <EmbeddedResource Remove="Effects\Content\**" />
+      <None Remove="Effects\Content\**" />
+    </ItemGroup>
+    <ItemGroup>
         <None Remove="Effects\logfile.txt" />
         <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll" />
         <None Remove="Effects\Microsoft.Xna.Framework.Content.Pipeline.dll" />

@@ -341,4 +341,6 @@ healthchecksdb
 
 Properties
 *.zip
-/Effects
+Effects
+Effects/*
+
