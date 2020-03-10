@@ -27,6 +27,11 @@ namespace TemplateMod2.Items {
             Tooltip.AddTranslation(GameCulture.Chinese, "它是由什么做的？\n" +
                 "哦铁啊，那没事了");
         }
+        public override void UseStyle(Player player) {
+            base.UseStyle(player);
+            player.statDefense += 5;
+        }
+
 
         public override void SetDefaults() {
             // 伤害！想都不要想，后面这个值随便改吧，但是不要超过2147483647
@@ -83,7 +88,7 @@ namespace TemplateMod2.Items {
         }
 
         public override bool UseItem(Player player) {
-            TemplateMod2.Strength = 3.14f;
+            TemplateMod2.Strength = 0f;
             TemplateMod2.Progress = 0;
             return base.UseItem(player);
         }

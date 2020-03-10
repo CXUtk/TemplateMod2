@@ -35,14 +35,7 @@ float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 	float4 color = tex2D(uImage0, coords);
 	if (!any(color))
 		return color;
-	float2 pixelS = 1* float2(1.0 / uScreenResolution.x, 1.0 / uScreenResolution.y);
-	float4 blend = float4(0, 0, 0, 0);
-	for (int i = -1; i <= 1; i++) {
-		for (int j = -1; j <= 1; j++) {
-			blend += gauss[i + 1][j + 1] * tex2D(uImage0, float2(coords.x + i * pixelS.x, coords.y + j * pixelS.y));
-		}
-	}
-	return blend;
+	return float4(sin(uTime + coords.y), cos(uTime + coords.x), 1.0, color.a);
 }
 
 technique Technique1 {

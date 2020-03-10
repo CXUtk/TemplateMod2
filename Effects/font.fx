@@ -18,7 +18,6 @@ float2 uScreenResolution;
 float2 uScreenPosition;
 float2 uTargetPosition;
 float2 uImageOffset;
-float2 uEffectPos;
 float uIntensity;
 float uProgress;
 float2 uDirection;
@@ -26,40 +25,31 @@ float2 uZoom;
 float2 uImageSize0;
 float2 uImageSize1;
 
-float4x4 WorldViewProjection;
-
 float gauss[3][3] = {
-    0.075, 0.124, 0.075,
+	0.075, 0.124, 0.075,
     0.124, 0.204, 0.124,
     0.075, 0.124, 0.075
 };
-float mod(float x, float y) {
-	return x - y * floor(x / y);
-}
-
-
-float2 rotate(float2 vec, float r) {
-	return mul(float1x2(vec), float2x2(cos(r), -sin(r), sin(r), cos(r)));
-}
-
-float lenFix(float2 vec) {
-	return length(vec) * float2(uScreenResolution.y / uScreenResolution.x, 1);
-}
-
+struct PS_INPUT
+{
+    float4 Position : SV_POSITION;  // interpolated vertex position (system value)
+    float4 Color    : COLOR0;       // interpolated diffuse color
+};
 
 float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 	float4 color = tex2D(uImage0, coords);
-	float4 color2 = tex2D(uImage1, coords + float2(uTime, 0) * 0.1);
 	if (!any(color))
 		return color;
-	// float2 uv = uTargetPosition / uScreenResolution;
-	float2 uv = uEffectPos / uScreenResolution;
-	float2 dis = (coords - uv) * float2(uScreenResolution.x / uScreenResolution.y, 1);
-	float2 offset = coords - uv;
-	float distance = length(dis);
-	if (distance > 0.5)
+	float2 offset = coords - float2(0.5, 0.5);
+	float dis = offset * offset;
+	return tex2D(uImage0, float2(0.5, 0.5) + offset * dis);
+}
+
+float4 colored(float2 coords : TEXCOORD0) : COLOR0 {
+	float4 color = tex2D(uImage0, coords);
+	if (!any(color))
 		return color;
-	return tex2D(uImage0, uv + rotate(offset, sin(distance * 6.28) + uIntensity));
+	return float4(sin(coords.y * 5 + uTime), cos(coords.y * 5 + uTime), coords.y, color.a);
 }
 
 
@@ -67,5 +57,8 @@ float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 technique Technique1 {
 	pass Test {
 		PixelShader = compile ps_2_0 PixelShaderFunction();
+	}
+	pass Color {
+		PixelShader = compile ps_2_0 colored();
 	}
 }

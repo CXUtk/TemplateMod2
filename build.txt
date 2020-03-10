@@ -5,6 +5,5 @@ hideResources = false
 hideCode = false
 includeSource = true
 includePDB = true
-languageVersion = 6
 homepage = http://fs49.org/
 buildIgnore = *.csproj, *.sln, obj\*, bin\*, *.suo, *.user, .git\*, .vs\*, Libraries\*
