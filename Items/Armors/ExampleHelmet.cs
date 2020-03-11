@@ -36,7 +36,7 @@ namespace TemplateMod2.Items.Armors {
 
         // 如果在上面的函数中玩家被判定穿上了模板套装，那么就会在这里执行其效果
         public override void UpdateArmorSet(Player player) {
-            // 套装描述，就是鼠标移上去最底下现实的套装效果
+            // 套装描述，就是鼠标移上去最底下显示的套装效果
             player.setBonus = "进一步增加回血速度，吸取红心范围增大" +
                 "\n增加10%伤害减免";
             player.endurance += 0.6f;
