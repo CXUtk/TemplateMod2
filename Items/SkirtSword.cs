@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using TemplateMod2.Projectiles;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -27,10 +28,6 @@ namespace TemplateMod2.Items {
             Tooltip.AddTranslation(GameCulture.Chinese, "它是由什么做的？\n" +
                 "哦铁啊，那没事了");
         }
-        public override void UseStyle(Player player) {
-            base.UseStyle(player);
-            player.statDefense += 5;
-        }
 
 
         public override void SetDefaults() {
@@ -55,8 +52,10 @@ namespace TemplateMod2.Items {
             // 这个数值越低越快，因为TR游戏速度每秒是60帧，这里的20就是
             // 20.0 / 60.0 = 0.333 秒挥动一次！也就是一秒三次
             // 一般来说我们要把这两个值设成一样，但也有例外的时候，我们以后会讲
-            item.useTime = 20;
-            item.useAnimation = 20;
+            item.useTime = 4;
+            item.useAnimation = 4;
+            item.shoot = ModContent.ProjectileType<LightTreePro>();
+            item.shootSpeed = 1f;
 
             // 使用方式，这个值决定了武器使用时到底是按什么样的动画播放
             // 1 代表挥动，也就是剑类武器！
@@ -68,7 +67,7 @@ namespace TemplateMod2.Items {
 
             // 击退，你懂的，但是这个击退有个上限就是20，超过20击退效果跟20没什么区别
             // 后面的 'f' 表示这是个浮点数：8.25，但是这个'f'不可省略
-            item.knockBack = 8.25f;
+            item.knockBack = 0f;
 
             // 物品的价格，这里用sellPrice，也就是卖出物品的价格作为基准
             // 这件物品卖出时会获得 0白金 1金 60银 0铜 这么多的钱 （就这？
