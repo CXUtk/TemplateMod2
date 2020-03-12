@@ -1,10 +1,9 @@
 ﻿displayName = MOD模板第二版（教学用）
 author = 小裙子/DXTsT
-version = 1.0
+version = 1.1
 hideResources = false
 hideCode = false
 includeSource = true
 includePDB = true
-languageVersion = 6
 homepage = http://fs49.org/
 buildIgnore = *.csproj, *.sln, obj\*, bin\*, *.suo, *.user, .git\*, .vs\*, Libraries\*
