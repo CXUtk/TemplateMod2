@@ -20,36 +20,39 @@ namespace TemplateMod2.Items.Accessories {
             item.rare = 2;
             item.accessory = true;
         }
-        //these wings use the same values as the solar wings
+
         public override void UpdateAccessory(Player player, bool hideVisual) {
             if (hideVisual) {
                 player.wingTimeMax = 50;
             } else {
                 player.wingTimeMax = 200;
             }
-            //player.wingTime = player.wingTimeMax;
-            //if (!player.controlJump && !player.controlDown) {
-            //    player.gravDir = 0f;
-            //    player.velocity.Y = 0;
-            //    player.gravity = 0;
-            //    player.noFallDmg = true;
-            //}
-            //if (player.controlDown) {
-            //    player.gravity = Player.defaultGravity;
-            //    player.gravDir = 1;
-            //    player.noFallDmg = true;
-            //}
+            player.wingTime = player.wingTimeMax;
+
+            // 让玩家可以虚空行走
+            if (!player.controlJump && !player.controlDown) {
+                player.gravDir = 0f;
+                player.velocity.Y = 0;
+                player.gravity = 0;
+                player.noFallDmg = true;
+            }
+            if (player.controlDown) {
+                player.gravity = Player.defaultGravity;
+                player.gravDir = 1;
+                player.noFallDmg = true;
+            }
         }
+
+        // 翅膀垂直移动数据
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising, ref float maxCanAscendMultiplier, ref float maxAscentMultiplier, ref float constantAscend) {
             constantAscend = 1f;
             maxAscentMultiplier = 2f;
-            //maxCanAscendMultiplier = 2f;
         }
+        // 翅膀水平移动数据
         public override void HorizontalWingSpeeds(Player player, ref float speed, ref float acceleration) {
-            //speed = 100f;
-            //acceleration = 2.5f;
+            speed = 20f;
+            acceleration = 2.5f;
         }
-
 
         public override void AddRecipes() {
             base.AddRecipes();

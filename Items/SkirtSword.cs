@@ -80,6 +80,10 @@ namespace TemplateMod2.Items {
             // 决定了这个武器鼠标按住不放能不能一直攻击， true代表可以, false代表不行
             // （鼠标别按废了
             item.autoReuse = true;
+
+            // 射出泰拉剑气
+            item.shoot = ProjectileID.TerraBeam;
+            item.shootSpeed = 7f;
         }
 
         // 物品合成表的设置部分

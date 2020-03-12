@@ -32,11 +32,7 @@ namespace TemplateMod2.Items.Armors {
             // 如果玩家的速度的值大于一定值，也就是玩家在移动
             if (player.velocity.Length() > 0.05f) {
                 // 就增加全部伤害
-                player.meleeDamage += 0.05f;
-                player.rangedDamage += 0.05f;
-                player.magicDamage += 0.05f;
-                player.minionDamage += 0.05f;
-                player.thrownDamage += 0.05f;
+                player.allDamage += 0.05f;
             }
         }
 

@@ -34,6 +34,7 @@ namespace TemplateMod2.Items.Accessories {
             // 这个属性代表这是专家模式专有物品，稀有度颜色会是彩虹的！
             item.expert = true;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual) {
             player.lifeRegen += 10;
             player.jumpSpeedBoost = 5f;
@@ -46,6 +47,7 @@ namespace TemplateMod2.Items.Accessories {
             player.doubleJumpSandstorm = true;
             player.doubleJumpUnicorn = true;
         }
+
         public override void UseStyle(Player player) {
             base.UseStyle(player);
         }
