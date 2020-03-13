@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using TemplateMod2.Buffs;
+using TemplateMod2.Utils;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -31,7 +33,7 @@ namespace TemplateMod2.Items {
         public override void SetDefaults() {
             // 伤害！想都不要想，后面这个值随便改吧，但是不要超过2147483647
             // 不然…… 你试试就知道了
-            item.damage = 50;
+            item.damage = 10;
 
             // 决定了这个武器的伤害属性，
             // melee 代表近战
@@ -50,8 +52,8 @@ namespace TemplateMod2.Items {
             // 这个数值越低越快，因为TR游戏速度每秒是60帧，这里的20就是
             // 20.0 / 60.0 = 0.333 秒挥动一次！也就是一秒三次
             // 一般来说我们要把这两个值设成一样，但也有例外的时候，我们以后会讲
-            item.useTime = 20;
-            item.useAnimation = 20;
+            item.useTime = 4;
+            item.useAnimation = 4;
 
             // 使用方式，这个值决定了武器使用时到底是按什么样的动画播放
             // 1 代表挥动，也就是剑类武器！
@@ -85,6 +87,29 @@ namespace TemplateMod2.Items {
             item.shoot = ProjectileID.TerraBeam;
             item.shootSpeed = 7f;
         }
+
+        public override void MeleeEffects(Player player, Rectangle hitbox) {
+
+        }
+
+        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+            // 给怪物加上我们之前做的Buff，持续10秒
+            target.AddBuff(ModContent.BuffType<SuperToxic>(), 600);
+        }
+
+        public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
+            base.ModifyHitNPC(player, target, ref damage, ref knockBack, ref crit);
+        }
+
+        //public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY,
+        //    ref int type, ref int damage, ref float knockBack) {
+        //    type = Main.rand.Next(Main.projectileTexture.Length);
+        //    return true;
+        //}
+
+
+
+
 
         // 物品合成表的设置部分
         public override void AddRecipes() {

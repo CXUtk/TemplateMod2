@@ -37,7 +37,7 @@ namespace TemplateMod2.Items {
         public override void SetDefaults() {
             // 伤害！知道该做什么了吧，后面这个值随便改吧，但是不要超过2147483647
             // 不然…… 你试试就知道了
-            item.damage = 123;
+            item.damage = 10;
 
             // 击退，你懂的，但是这个击退有个上限就是20.0f，超过20击退效果跟20没什么区别
             // 后面的 'f' 表示这是个小数，0.25
@@ -85,8 +85,8 @@ namespace TemplateMod2.Items {
 
             // 物品的碰撞体积大小，可以与贴图无关，但是建议设为跟贴图一样的大小
             // 不然鬼知道会不会发生奇怪的事情（无所谓的）
-            item.width = 24;
-            item.height = 24;
+            item.width = 60;
+            item.height = 60;
 
             // 让它变小一点
             item.scale = 0.85f;
@@ -115,12 +115,32 @@ namespace TemplateMod2.Items {
 
             // 好了，到这里差不多就是一个普通的枪需要填写的属性了
             // 至于更高级的枪怎么制作，嘿嘿，往后看吧。
+            Item.staff[item.type] = true;
         }
 
 
         // 控制这把枪使用时候的重写函数
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+            //var proj = Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), type, damage, knockBack);
+            //proj.noDropItem = true;
             return true;
+        }
+
+        public override Vector2? HoldoutOffset() {
+            return new Vector2(-10, -5);
+        }
+
+        public override Vector2? HoldoutOrigin() {
+            return new Vector2(-50, -50);
+        }
+
+        public override bool HoldItemFrame(Player player) {
+            // 选中武器的时候设置为第3帧
+            player.bodyFrame.Y = player.bodyFrame.Height * 2;
+            return true;
+        }
+        public override void HoldStyle(Player player) {
+            base.HoldStyle(player);
         }
 
 

@@ -55,7 +55,10 @@ namespace TemplateMod2.Buffs {
             player.lifeRegen -= player.buffTime[buffIndex];
         }
         public override void Update(NPC npc, ref int buffIndex) {
-            base.Update(npc, ref buffIndex);
+            if (npc.lifeRegen > 0) {
+                npc.lifeRegen = 0;
+            }
+            npc.lifeRegen -= 50;
         }
         public override bool ReApply(Player player, int time, int buffIndex) {
             player.buffTime[buffIndex] += time;

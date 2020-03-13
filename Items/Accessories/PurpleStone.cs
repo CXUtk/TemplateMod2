@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TemplateMod2.Utils;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -36,7 +38,8 @@ namespace TemplateMod2.Items.Accessories {
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual) {
-            player.lifeRegen += 10;
+            player.lifeRegen += 20;
+            player.statLife++;
             player.jumpSpeedBoost = 5f;
             player.jumpBoost = true;
             // 连跳
@@ -46,11 +49,14 @@ namespace TemplateMod2.Items.Accessories {
             player.doubleJumpFart = true;
             player.doubleJumpSandstorm = true;
             player.doubleJumpUnicorn = true;
+
+            if (Main.time % 3 < 1) {
+                Dust dust = Dust.NewDustDirect(player.position, player.width, player.height,
+                    MyDustId.Fire, -player.velocity.X, -player.velocity.Y, 100, Color.White, 2.0f);
+                dust.noGravity = true;
+            }
         }
 
-        public override void UseStyle(Player player) {
-            base.UseStyle(player);
-        }
 
         public override void AddRecipes() {
             base.AddRecipes();
