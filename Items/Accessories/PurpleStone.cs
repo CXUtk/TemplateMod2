@@ -45,6 +45,18 @@ namespace TemplateMod2.Items.Accessories {
             player.doubleJumpFart = true;
             player.doubleJumpSandstorm = true;
             player.doubleJumpUnicorn = true;
+
+            if (!player.controlJump && !player.controlDown) {
+                player.gravDir = 0f;
+                player.velocity.Y = 0;
+                player.gravity = 0;
+                player.noFallDmg = true;
+            }
+            if (player.controlDown) {
+                player.gravity = Player.defaultGravity;
+                player.gravDir = 1;
+                player.noFallDmg = true;
+            }
         }
         public override void UseStyle(Player player) {
             base.UseStyle(player);

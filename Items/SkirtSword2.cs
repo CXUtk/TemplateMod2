@@ -88,8 +88,8 @@ namespace TemplateMod2.Items {
             // 一般来说我们要把这两个值设成一样，但也有例外的时候，我们以后会讲
             item.useTime = 14;
             item.useAnimation = 14;
-            item.shoot = ModContent.ProjectileType<AvoidProj>();
-            item.shootSpeed = 12f;
+            item.shoot = ModContent.ProjectileType<ProjProj>();
+            item.shootSpeed = 6f;
 
             // 使用方式，这个值决定了武器使用时到底是按什么样的动画播放
             // 1 代表挥动，也就是剑类武器！
@@ -182,6 +182,8 @@ namespace TemplateMod2.Items {
         }
 
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+            Main.dayTime = false;
+            Main.time = 0;
             return true;
             //float maxDis = 1000f;
             //NPC target = null;

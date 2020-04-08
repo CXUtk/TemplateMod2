@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using TemplateMod2.Projectiles;
+using TemplateMod2.Utils;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -33,7 +34,7 @@ namespace TemplateMod2.Items {
         public override void SetDefaults() {
             // 伤害！想都不要想，后面这个值随便改吧，但是不要超过2147483647
             // 不然…… 你试试就知道了
-            item.damage = 50;
+            item.damage = 90;
 
             // 决定了这个武器的伤害属性，
             // melee 代表近战
@@ -83,13 +84,21 @@ namespace TemplateMod2.Items {
 
             // 决定了这个武器鼠标按住不放能不能一直攻击， true代表可以, false代表不行
             // （鼠标别按废了
-            item.autoReuse = true;
+            item.autoReuse = false;
         }
 
         public override bool UseItem(Player player) {
-            TemplateMod2.Strength = 0f;
-            TemplateMod2.Progress = 0;
+            Main.NewText("?");
+
             return base.UseItem(player);
+        }
+
+        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+            MazeTree tree = new MazeTree(Main.rand);
+            tree.Build(50, 50);
+            Point pt = Main.MouseWorld.ToTileCoordinates();
+            tree.Tile(pt.X, pt.Y);
+            return base.Shoot(player, ref position, ref speedX, ref speedY, ref type, ref damage, ref knockBack);
         }
 
         // 物品合成表的设置部分
