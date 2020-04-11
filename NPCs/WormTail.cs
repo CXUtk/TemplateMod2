@@ -49,7 +49,7 @@ namespace TemplateMod2.NPCs {
                 npc.netUpdate = true;
             }
             // 否则我们就跟随前面的大哥走
-            var front = Main.npc[Head];
+            var front = Head.npc;
             Vector2 diff = front.Center - npc.Center;
             // 让npc移动到大哥后面height距离的位置
             diff.Normalize();

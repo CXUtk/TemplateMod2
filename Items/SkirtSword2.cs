@@ -193,38 +193,38 @@ namespace TemplateMod2.Items {
                     break;
                 }
             }
-            if (target != null) {
-                if (!flag) {
-                    WormHead head = (WormHead)target.modNPC;
-                    WormBodyNPC wmb = (WormBodyNPC)target.modNPC;
-                    for (int i = 0; i < 45; i++) {
-                        WormBodyNPC nxt = (WormBodyNPC)Main.npc[wmb.Tail].modNPC;
-                        if (i % 6 == 5) {
-                            var nhead = WormHead.SpawnHead(wmb.npc);
-                            nhead.npc.velocity = Main.rand.NextVector2CircularEdge(1, 1) * 20f;
-                            wmb.Head = nhead.npc.whoAmI;
-                        }
-                        wmb = nxt;
-                    }
-                } else {
-                    foreach (var npc in Main.npc) {
-                        if (npc.active && npc.type == ModContent.NPCType<WormHead>()) {
-                            var worm = (WormBodyNPC)npc.modNPC;
-                            if (worm.Tail == 0) {
-                                npc.active = false;
-                            }
-                        }
-                        if (npc.active && npc.modNPC is WormBodyNPC) {
-                            var worm = (WormBodyNPC)npc.modNPC;
-                            if (worm.Tail != 0) {
-                                var pv = (WormBodyNPC)Main.npc[worm.Tail].modNPC;
-                                pv.Head = worm.npc.whoAmI;
-                            }
-                        }
-                    }
-                }
-                flag ^= true;
-            }
+            //if (target != null) {
+            //    if (!flag) {
+            //        WormHead head = (WormHead)target.modNPC;
+            //        WormBodyNPC wmb = (WormBodyNPC)target.modNPC;
+            //        for (int i = 0; i < 45; i++) {
+            //            WormBodyNPC nxt = (WormBodyNPC)Main.npc[wmb.Tail].modNPC;
+            //            if (i % 6 == 5) {
+            //                var nhead = WormHead.SpawnHead(wmb.npc);
+            //                nhead.velocity = Main.rand.NextVector2CircularEdge(1, 1) * 20f;
+            //                wmb.Head = nhead.whoAmI;
+            //            }
+            //            wmb = nxt;
+            //        }
+            //    } else {
+            //        foreach (var npc in Main.npc) {
+            //            if (npc.active && npc.type == ModContent.NPCType<WormHead>()) {
+            //                var worm = (WormBodyNPC)npc.modNPC;
+            //                if (worm.Tail == 0) {
+            //                    npc.active = false;
+            //                }
+            //            }
+            //            if (npc.active && npc.modNPC is WormBodyNPC) {
+            //                var worm = (WormBodyNPC)npc.modNPC;
+            //                if (worm.Tail != 0) {
+            //                    var pv = (WormBodyNPC)Main.npc[worm.Tail].modNPC;
+            //                    pv.Head = worm.npc.whoAmI;
+            //                }
+            //            }
+            //        }
+            //    }
+            //    flag ^= true;
+            //}
             return true;
             //float maxDis = 1000f;
             //NPC target = null;

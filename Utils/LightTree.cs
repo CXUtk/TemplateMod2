@@ -39,7 +39,7 @@ namespace TemplateMod2.Utils {
             keyPoints = new List<Vector2>();
             this.target = target;
             root = _build(root, pos, vel, true);
-            Main.NewText($"生成了一个{cnt}个节点的树状结构");
+            // Main.NewText($"生成了一个{cnt}个节点的树状结构");
         }
         private Node _build(Node node, Vector2 pos, Vector2 vel, bool root) {
             keyPoints.Add(pos);
@@ -145,8 +145,12 @@ namespace TemplateMod2.Utils {
         //}
 
         public void Draw(SpriteBatch sb, Vector2 pos, Vector2 vel) {
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive);
             _draw(sb, pos, vel, root, Color.Cyan * 0.4f, 5f);
             _draw(sb, pos, vel, root, Color.White * 0.6f, 3f);
+            sb.End();
+            sb.Begin();
         }
 
         public void SpawnDust(Vector2 pos, Vector2 vel) {

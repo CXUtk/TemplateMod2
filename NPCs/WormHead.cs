@@ -14,24 +14,31 @@ namespace TemplateMod2.NPCs {
         /// <summary>
         /// 它前面的NPC的ID
         /// </summary>
-        public int Head {
+        public WormBodyNPC Head {
             get {
-                return (int)npc.ai[2];
+                return _getNPCByID((int)npc.ai[2]);
             }
             set {
-                npc.ai[2] = value;
+                npc.ai[2] = value.npc.whoAmI;
             }
         }
         /// <summary>
         /// 它后面的NPC的ID
         /// </summary>
-        public int Tail {
+        public WormBodyNPC Tail {
             get {
-                return (int)npc.ai[3];
+                return _getNPCByID((int)npc.ai[3]);
             }
             set {
-                npc.ai[3] = value;
+                npc.ai[3] = value.npc.whoAmI;
             }
+        }
+
+        private WormBodyNPC _getNPCByID(int id) {
+            if (id < 0) return null;
+            NPC n = Main.npc[id];
+            if (!n.active || n == null) return null;
+            return (WormBodyNPC)n.modNPC;
         }
     }
     public class WormHead : WormBodyNPC {
@@ -72,61 +79,58 @@ namespace TemplateMod2.NPCs {
 
         private void MoveToPlayer() {
             Vector2 diff = Vector2.Normalize(TargetPlayer.Center - npc.Center);
-            diff *= npc.Distance(TargetPlayer.Center) > 2000 ? 50 : 30;
-            diff = (npc.velocity * 20 + diff) / 21f;
-            float speedX = 0.3f;
-            float speedY = 0.3f;
+            diff *= 35f;
+            diff = (npc.velocity * 30 + diff) / 31f;
+            float speedX = 0.5f;
+            float speedY = 0.5f;
             npc.velocity.X += (npc.velocity.X < diff.X ? 1 : -1) * speedX;
             npc.velocity.Y += (npc.velocity.Y < diff.Y ? 1 : -1) * speedY;
         }
 
-        public static WormBodyNPC SpawnHead(NPC npc) {
-            int id = NPC.NewNPC((int)npc.position.X, (int)npc.position.Y, ModContent.NPCType<WormHead>());
+        public static WormBodyNPC SpawnWormPart(NPC npc, int type) {
+            int id = NPC.NewNPC((int)npc.position.X, (int)npc.position.Y, type);
             NPC n = Main.npc[id];
             n.whoAmI = id;
-            var nhead = (WormBodyNPC)n.modNPC;
-            nhead.Initialize();
-            nhead.SetState<AttackState>();
-            return nhead;
+            n.realLife = npc.realLife;
+            return n.modNPC as WormBodyNPC;
         }
 
-        public static WormBodyNPC SpawnTail(NPC npc) {
-            int id = NPC.NewNPC((int)npc.position.X + 10, (int)npc.position.Y + 10, ModContent.NPCType<WormTail>());
-            NPC n = Main.npc[id];
-            return (WormBodyNPC)n.modNPC;
-        }
-
-        private class AttackState : NPCState {
-            public AttackState(SMNPC npc) : base(npc) { }
+        private class NormalAttack : NPCState {
+            public NormalAttack(SMNPC npc) : base(npc) { }
             public override void AI(SMNPC mnpc) {
                 var wmnpc = mnpc as WormHead;
                 //唯一目标
                 if (npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead) {
                     npc.TargetClosest(true);
                 }
-                wmnpc.MoveToPlayer();
+                if (mnpc.Timer >= 0 && mnpc.Timer < 80) {
+                    if (wmnpc.npc.velocity.Y < 20)
+                        wmnpc.npc.velocity.Y += 0.5f;
+                } else {
+                    wmnpc.MoveToPlayer();
+                }
                 mnpc.Timer++;
-                //if (mnpc.Timer == 200) {
-                //    var cur = mnpc as WormBodyNPC;
-                //    for (int i = 0; i < 40; i++) {
-                //        // if (cur == null || Main.npc[cur.Tail] == null || !Main.npc[cur.Tail].active) break;
-                //        var next = GetWorm(Main.npc[cur.Tail]);
-                //        if (i % 10 == 9) {
-                //            //var newTail = SpawnTail(cur.npc);
-                //            //var last = GetWorm(Main.npc[cur.Next]);
-                //            //newTail.npc.realLife = last.npc.realLife;
-                //            //newTail.Next = last.npc.whoAmI;
+                if (mnpc.Timer == 400) {
+                    WormBodyNPC cur = mnpc as WormBodyNPC;
+                    for (int i = 0; i < 45; i++) {
+                        WormBodyNPC nxt = cur.Tail;
+                        if (i % 6 == 5) {
+                            var lastHead = cur.Head;
+                            var newHead = SpawnWormPart(cur.npc, ModContent.NPCType<WormFakeHead>());
+                            newHead.npc.velocity = Main.rand.NextVector2CircularEdge(1, 1) * 25f;
+                            newHead.Head = cur.Head;
+                            newHead.Tail = cur;
+                            cur.Head = newHead;
 
-                //            var newhead = SpawnHead(cur.npc);
-                //            cur.Head = newhead.npc.whoAmI;
-                //            newhead.Initialize();
-                //            newhead.SetState<AttackState>();
-                //            newhead.npc.velocity = Main.rand.NextVector2CircularEdge(1, 1) * 20f;
-                //            cur.npc.realLife = cur.Head;
-                //        }
-                //        cur = next;
-                //    }
-                //}
+                            var newTail = SpawnWormPart(cur.npc, ModContent.NPCType<WormTail>());
+                            newTail.Head = lastHead;
+                            lastHead.Tail = newTail;
+                        }
+                        cur = nxt;
+                    }
+                    mnpc.Timer = 0;
+                    mnpc.SetState<SplitAttack>();
+                }
             }
         }
 
@@ -135,24 +139,79 @@ namespace TemplateMod2.NPCs {
             public override void AI(SMNPC mnpc) {
                 npc.realLife = npc.whoAmI;
                 int length = 50;
-                int curID = npc.whoAmI;
+                WormBodyNPC cur = (WormBodyNPC)mnpc;
                 for (int i = 0; i < length; i++) {
                     int type = (i == length - 1) ? ModContent.NPCType<WormTail>() : ModContent.NPCType<WormBody>();
-                    int id = NPC.NewNPC((int)npc.position.X, (int)npc.position.Y, type);
-                    var child = Main.npc[id];
-                    child.realLife = npc.realLife;
-                    GetWorm(child).Head = curID;
-                    GetWorm(Main.npc[curID]).Tail = id;
+                    var part = SpawnWormPart(npc, type);
+                    part.npc.realLife = npc.realLife;
+                    part.Head = cur;
+                    GetWorm(cur.npc).Tail = part;
                     // 每个蠕虫身体维护双向链表，前驱和后继
-                    curID = id;
+                    cur = part;
                 }
-                mnpc.SetState<AttackState>();
+                mnpc.SetState<NormalAttack>();
+            }
+        }
+
+        private class Split : NPCState {
+            public Split(SMNPC npc) : base(npc) { }
+            public override void AI(SMNPC mnpc) {
+
+            }
+        }
+
+        private class Merge : NPCState {
+            public Merge(SMNPC npc) : base(npc) { }
+            public override void AI(SMNPC mnpc) {
+
+                mnpc.SetState<NormalAttack>();
+            }
+        }
+
+        private class SplitAttack : NPCState {
+            public SplitAttack(SMNPC npc) : base(npc) { }
+            public override void AI(SMNPC mnpc) {
+                var wmnpc = mnpc as WormHead;
+                //唯一目标
+                if (npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead) {
+                    npc.TargetClosest(true);
+                }
+                if (mnpc.Timer >= 60 && mnpc.Timer < 80) {
+                    if (wmnpc.npc.velocity.Y < 20)
+                        wmnpc.npc.velocity.Y += 0.5f;
+                } else {
+                    wmnpc.MoveToPlayer();
+                }
+                mnpc.Timer++;
+                if (mnpc.Timer == 360) {
+                    foreach (var n in Main.npc) {
+                        if (n.active && n.realLife == npc.whoAmI) {
+                            if (n.type == ModContent.NPCType<WormFakeHead>()) {
+                                var wormHead = n.modNPC as WormBodyNPC;
+                                wormHead.SetState<WormFakeHead.MergeState>();
+                            }
+                        }
+                    }
+                } else if (mnpc.Timer > 360) {
+                    if (wmnpc.npc.velocity.Y < 20)
+                        wmnpc.npc.velocity.Y += 0.5f;
+                    foreach (var n in Main.npc) {
+                        if (n.active && n.realLife == npc.whoAmI && n.type == ModContent.NPCType<WormFakeHead>()) {
+                            return;
+                        }
+                    }
+                    mnpc.Timer = 0;
+                    mnpc.SetState<NormalAttack>();
+                }
             }
         }
 
         public override void Initialize() {
             RegisterState<SpawnState>();
-            RegisterState<AttackState>();
+            RegisterState<NormalAttack>();
+            RegisterState<Split>();
+            RegisterState<SplitAttack>();
+            RegisterState<Merge>();
         }
     }
 }
