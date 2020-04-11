@@ -19,19 +19,10 @@ namespace TemplateMod2 {
     public class TestScreenShaderData : ScreenShaderData {
         public TestScreenShaderData(string passName) : base(passName) {
         }
-
         public TestScreenShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {
         }
-
         public override void Apply() {
-            //this.Shader.Parameters["uEffectPos"].SetValue(Main.MouseScreen);
-            //UseIntensity(TemplateMod2.Strength);
-            //UseProgress(TemplateMod2.Progress);
-            //this.Shader.Parameters["WorldViewProjection"].SetValue(Main.GameViewMatrix.TransformationMatrix * Matrix.CreateTranslation(0.1f, 0, 0));
-            //UseImage(TemplateMod2.Instance.GetTexture("Images/noise1"), 0, SamplerState.LinearClamp);
-            //base.Apply();
-
+            base.Apply();
         }
-
     }
 }

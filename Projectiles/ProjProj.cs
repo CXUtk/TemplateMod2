@@ -48,7 +48,7 @@ namespace TemplateMod2.Projectiles {
         }
 
 
-        private class ForwardState : ProjState {
+        private class ForwardState : NPCState {
             public override void AI(SMProjectile proj) {
                 var projectile = proj.projectile;
                 projectile.rotation += 0.05f * projectile.velocity.Length();
@@ -60,7 +60,7 @@ namespace TemplateMod2.Projectiles {
             }
         }
 
-        private class ChaseState : ProjState {
+        private class ChaseState : NPCState {
             public override void AI(SMProjectile proj) {
                 var projectile = proj.projectile;
                 proj.Timer++;
@@ -75,7 +75,7 @@ namespace TemplateMod2.Projectiles {
         }
 
 
-        private class BackwardState : ProjState {
+        private class BackwardState : NPCState {
             public override void AI(SMProjectile proj) {
                 var projectile = proj.projectile;
                 projectile.rotation -= 0.05f * projectile.velocity.Length();
@@ -85,6 +85,10 @@ namespace TemplateMod2.Projectiles {
                     projectile.Kill();
                 }
             }
+        }
+
+        public override void AIBefore() {
+
         }
 
         public override void Initialize() {

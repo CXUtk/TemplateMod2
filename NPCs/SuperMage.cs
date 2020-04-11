@@ -72,6 +72,11 @@ namespace TemplateMod2.NPCs {
             }
         }
 
+        public override void FindFrame(int frameHeight) {
+            npc.frame.
+            base.FindFrame(frameHeight);
+        }
+
 
         //法师NPC专属：魔法光环的照明范围，最多起装饰作用（选带项）
         public override void TownNPCAttackMagic(ref float auraLightMultiplier) {

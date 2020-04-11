@@ -5,21 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria.ModLoader;
 
-namespace TemplateMod2.Projectiles.StateMachine {
+namespace TemplateMod2.NPCs.StateMachine {
     /// <summary>
     /// 基于状态机的ModProjectile类，一定要先在Initialize里注册弹幕的状态才能使用哦
     /// </summary>
-    public abstract class SMProjectile : ModProjectile {
+    public abstract class SMNPC : ModNPC {
         public NPCState currentState => projStates[State - 1];
         private List<NPCState> projStates = new List<NPCState>();
         private Dictionary<string, int> stateDict = new Dictionary<string, int>();
         private int State {
-            get { return (int)projectile.ai[0]; }
-            set { projectile.ai[0] = (int)value; }
+            get { return (int)npc.ai[0]; }
+            set { npc.ai[0] = (int)value; }
         }
         public int Timer {
-            get { return (int)projectile.ai[1]; }
-            set { projectile.ai[1] = value; }
+            get { return (int)npc.ai[1]; }
+            set { npc.ai[1] = value; }
         }
         /// <summary>
         /// 把当前状态变为指定的弹幕状态实例
@@ -30,6 +30,11 @@ namespace TemplateMod2.Projectiles.StateMachine {
             if (!stateDict.ContainsKey(name)) throw new ArgumentException("这个状态并不存在");
             State = stateDict[name];
         }
+        /// <summary>
+        /// 判断NPC是否处于某个状态
+        /// </summary>
+        /// <typeparam name="T">注册过的<see cref="NPCState"/>类名</typeparam>
+        /// <returns></returns>
         public bool AtState<T>() where T : NPCState {
             var name = typeof(T).FullName;
             if (!stateDict.ContainsKey(name)) throw new ArgumentException("这个状态并不存在");

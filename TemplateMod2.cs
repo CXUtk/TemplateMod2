@@ -17,22 +17,27 @@ namespace TemplateMod2 {
         public static TemplateMod2 Instance;
         public static float Strength;
         public static float Progress;
-        private Effect fontEffect;
+        public static Effect npcEffect;
 
         // 构造函数
         public TemplateMod2() {
         }
         public override void Load() {
             Instance = this;
-            Filters.Scene["TemplateMod:Gray"] = new Filter(
-                new TestScreenShaderData(new Ref<Effect>(GetEffect("Effects/fuzzy")), "Test"), EffectPriority.Medium);
-            Filters.Scene["TemplateMod:Gray"].Load();
-            fontEffect = GetEffect("Effects/font");
+            // 注意设置正确的Pass名字
+            Filters.Scene["TemplateMod:GBlur"] = new Filter(
+                new TestScreenShaderData(new Ref<Effect>(GetEffect("Effects/ShockWave")), "Test"), EffectPriority.Medium);
+            Filters.Scene["TemplateMod:GBlur"].Load();
+
+
+            npcEffect = GetEffect("Effects/EDge");
+
+
             base.Load();
         }
         public override void Unload() {
             Instance = null;
-            Filters.Scene["TemplateMod:Gray"].Deactivate();
+            Filters.Scene["TemplateMod:GBlur"].Deactivate();
             base.Unload();
         }
         public override void PostDrawInterface(SpriteBatch spriteBatch) {
@@ -72,11 +77,9 @@ namespace TemplateMod2 {
         }
 
         public override void PreUpdateEntities() {
-            if (!Filters.Scene["TemplateMod:Gray"].IsActive()) {
-                //Filters.Scene.Activate("TemplateMod:Gray");
+            if (!Filters.Scene["TemplateMod:GBlur"].IsActive()) {
+                Filters.Scene.Activate("TemplateMod:GBlur");
             }
-            if (Strength < 10) Strength += 0.1f;
-            if (Progress < 1.0) Progress += 0.02f;
         }
     }
 }

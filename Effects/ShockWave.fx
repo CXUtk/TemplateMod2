@@ -18,51 +18,31 @@ float2 uScreenResolution;
 float2 uScreenPosition;
 float2 uTargetPosition;
 float2 uImageOffset;
-float2 uEffectPos;
 float uIntensity;
 float uProgress;
 float2 uDirection;
 float2 uZoom;
+float2 uEffectPos;
 float2 uImageSize0;
 float2 uImageSize1;
-
-float4x4 WorldViewProjection;
-
-float gauss[3][3] = {
-    0.075, 0.124, 0.075,
-    0.124, 0.204, 0.124,
-    0.075, 0.124, 0.075
-};
-float mod(float x, float y) {
-	return x - y * floor(x / y);
-}
-
-
-float2 rotate(float2 vec, float r) {
-	return mul(float1x2(vec), float2x2(cos(r), -sin(r), sin(r), cos(r)));
-}
-
-float lenFix(float2 vec) {
-	return length(vec) * float2(uScreenResolution.y / uScreenResolution.x, 1);
-}
 
 
 float4 PixelShaderFunction(float2 coords : TEXCOORD0) : COLOR0 {
 	float4 color = tex2D(uImage0, coords);
-	float4 color2 = tex2D(uImage1, coords + float2(uTime, 0) * 0.1);
 	if (!any(color))
 		return color;
-	// float2 uv = uTargetPosition / uScreenResolution;
-	float2 uv = uEffectPos / uScreenResolution;
-	float2 dis = (coords - uv) * float2(uScreenResolution.x / uScreenResolution.y, 1);
-	float2 offset = coords - uv;
-	float distance = length(dis);
-	if (distance > 0.5)
-		return color;
-	return tex2D(uImage0, uv + rotate(offset, sin(distance * 3.14) + uIntensity));
+	// pos 就是中心了
+	float2 pos = float2(0.5, 0.5);
+	// offset 是中心到当前点的向量
+	float2 offset = (coords - pos);
+	// 因为长宽比不同进行修正
+	float2 rpos = offset * float2(uScreenResolution.x / uScreenResolution.y, 1);
+	float dis = length(rpos);
+	float r = dis;
+	// 将向量旋转相当于距离的弧度
+	float2 target = mul(offset, float2x2(cos(r), -sin(r), sin(r), cos(r)));
+	return tex2D(uImage0, pos + target);
 }
-
-
 
 technique Technique1 {
 	pass Test {
