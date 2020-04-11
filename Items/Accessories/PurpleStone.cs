@@ -1,10 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TemplateMod2.Utils;
 using Terraria;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -36,10 +34,8 @@ namespace TemplateMod2.Items.Accessories {
             // 这个属性代表这是专家模式专有物品，稀有度颜色会是彩虹的！
             item.expert = true;
         }
-
         public override void UpdateAccessory(Player player, bool hideVisual) {
-            player.lifeRegen += 20;
-            player.statLife++;
+            player.lifeRegen += 10;
             player.jumpSpeedBoost = 5f;
             player.jumpBoost = true;
             // 连跳
@@ -50,13 +46,21 @@ namespace TemplateMod2.Items.Accessories {
             player.doubleJumpSandstorm = true;
             player.doubleJumpUnicorn = true;
 
-            if (Main.time % 3 < 1) {
-                Dust dust = Dust.NewDustDirect(player.position, player.width, player.height,
-                    MyDustId.Fire, -player.velocity.X, -player.velocity.Y, 100, Color.White, 2.0f);
-                dust.noGravity = true;
+            if (!player.controlJump && !player.controlDown) {
+                player.gravDir = 0f;
+                player.velocity.Y = 0;
+                player.gravity = 0;
+                player.noFallDmg = true;
+            }
+            if (player.controlDown) {
+                player.gravity = Player.defaultGravity;
+                player.gravDir = 1;
+                player.noFallDmg = true;
             }
         }
-
+        public override void UseStyle(Player player) {
+            base.UseStyle(player);
+        }
 
         public override void AddRecipes() {
             base.AddRecipes();

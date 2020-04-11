@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using TemplateMod2.Projectiles;
+using TemplateMod2.Projectiles.StateMachine;
 using TemplateMod2.Utils;
 using Terraria;
 using Terraria.ID;
@@ -9,9 +10,10 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace TemplateMod2.Projectiles {
-    public class ProjProj : ModProjectile {
+    public class ProjProj : SMProjectile {
+
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("神秘弹幕");
+            DisplayName.SetDefault("回力标");
         }
         public override void SetDefaults() {
             projectile.width = 6;
@@ -19,37 +21,80 @@ namespace TemplateMod2.Projectiles {
             projectile.aiStyle = -1;
             projectile.friendly = true;
             projectile.light = 0.1f;
-            projectile.timeLeft = 200;
+            projectile.timeLeft = 600;
             projectile.ignoreWater = true;
             projectile.tileCollide = false;
             projectile.penetrate = -1;
-            projectile.scale = 3f;
-            projectile.alpha = 255;
-            projectile.extraUpdates = 0;
+            projectile.scale = 1.25f;
         }
-        public override void AI() {
-            int type = (projectile.ai[1] > 0) ? MyDustId.DemonTorch : MyDustId.RedTorch;
-            // 火焰粒子特效
-            Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height
-                , type, 0f, 0f, 100, default(Color), 3f);
-            // 粒子特效不受重力
-            dust.noGravity = true;
-            dust.velocity *= 0;
-            dust.position = projectile.Center;
-            float factor = (200f - projectile.timeLeft) / 200f;
-            factor *= factor;
-            projectile.ai[0]++;
-            if (projectile.ai[0] > 60 && projectile.ai[0] < 75) {
-                projectile.velocity *= 0.95f;
-            } else if (projectile.ai[0] >= 75) {
-                Player player = Main.player[projectile.owner];
-                Vector2 unit = Vector2.Normalize(player.Center - projectile.Center).RotatedBy(1.5f);
-                projectile.velocity = unit * factor * 50f;
-            }
 
-            base.AI();
+        public override Color? GetAlpha(Color lightColor) {
+            return Color.White;
         }
-        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {
+
+        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+            target.immune[projectile.owner] = 4;
+        }
+
+        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+            var tex = Main.projectileTexture[projectile.type];
+            spriteBatch.Draw(tex,
+                projectile.Center - Main.screenPosition, tex.Frame(),
+                Color.White, projectile.rotation,
+                tex.Size() * 0.5f,
+                projectile.scale, SpriteEffects.None, 0f);
+            // 返回false阻止原版的绘制
+            return false;
+        }
+
+
+        private class ForwardState : NPCState {
+            public override void AI(SMProjectile proj) {
+                var projectile = proj.projectile;
+                projectile.rotation += 0.05f * projectile.velocity.Length();
+                proj.Timer++;
+                float factor = proj.Timer / 90f;
+                factor *= factor;
+                projectile.velocity = Vector2.Normalize(projectile.velocity) * 9f * (1.0f - factor);
+                if (proj.Timer >= 90) proj.SetState<ChaseState>();
+            }
+        }
+
+        private class ChaseState : NPCState {
+            public override void AI(SMProjectile proj) {
+                var projectile = proj.projectile;
+                proj.Timer++;
+                projectile.rotation += 0.05f * projectile.velocity.Length();
+                var target = ProjUtils.FindNearestEnemy(projectile.Center, 1000, (npc) => npc.value > 1 || npc.damage > 1);
+                if (target != null) {
+                    var unit = Vector2.Normalize(target.Center - projectile.Center);
+                    projectile.velocity = (projectile.velocity * 15f + unit * 10f) / 16f;
+                }
+                if (proj.Timer >= 300) proj.SetState<BackwardState>();
+            }
+        }
+
+
+        private class BackwardState : NPCState {
+            public override void AI(SMProjectile proj) {
+                var projectile = proj.projectile;
+                projectile.rotation -= 0.05f * projectile.velocity.Length();
+                Player owner = Main.player[projectile.owner];
+                projectile.velocity = Vector2.Normalize(owner.Center - projectile.Center) * 9f;
+                if (projectile.Hitbox.Intersects(owner.Hitbox)) {
+                    projectile.Kill();
+                }
+            }
+        }
+
+        public override void AIBefore() {
+
+        }
+
+        public override void Initialize() {
+            RegisterState(new ForwardState());
+            RegisterState(new ChaseState());
+            RegisterState(new BackwardState());
         }
     }
 }

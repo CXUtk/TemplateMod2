@@ -339,8 +339,9 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-Properties
+Properties/
 *.zip
-Effects
-Effects/*
-
+Effects/*.dll
+Effects/*.exe
+Effects/*.txt
+Effects/Content/*
