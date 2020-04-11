@@ -10,8 +10,8 @@ namespace TemplateMod2.Projectiles.StateMachine {
     /// 基于状态机的ModProjectile类，一定要先在Initialize里注册弹幕的状态才能使用哦
     /// </summary>
     public abstract class SMProjectile : ModProjectile {
-        public NPCState currentState => projStates[State - 1];
-        private List<NPCState> projStates = new List<NPCState>();
+        public ProjState currentState => projStates[State - 1];
+        private List<ProjState> projStates = new List<ProjState>();
         private Dictionary<string, int> stateDict = new Dictionary<string, int>();
         private int State {
             get { return (int)projectile.ai[0]; }
@@ -25,12 +25,12 @@ namespace TemplateMod2.Projectiles.StateMachine {
         /// 把当前状态变为指定的弹幕状态实例
         /// </summary>
         /// <typeparam name="T">注册过的<see cref="NPCState"/>类名</typeparam>
-        public void SetState<T>() where T : NPCState {
+        public void SetState<T>() where T : ProjState {
             var name = typeof(T).FullName;
             if (!stateDict.ContainsKey(name)) throw new ArgumentException("这个状态并不存在");
             State = stateDict[name];
         }
-        public bool AtState<T>() where T : NPCState {
+        public bool AtState<T>() where T : ProjState {
             var name = typeof(T).FullName;
             if (!stateDict.ContainsKey(name)) throw new ArgumentException("这个状态并不存在");
             return State == stateDict[name];
@@ -40,7 +40,7 @@ namespace TemplateMod2.Projectiles.StateMachine {
         /// </summary>
         /// <typeparam name="T">需要注册的<see cref="NPCState"/>类</typeparam>
         /// <param name="state">需要注册的<see cref="NPCState"/>类的实例</param>
-        protected void RegisterState<T>(T state) where T : NPCState {
+        protected void RegisterState<T>(T state) where T : ProjState {
             var name = typeof(T).FullName;
             if (stateDict.ContainsKey(name)) throw new ArgumentException("这个状态已经注册过了");
             projStates.Add(state);

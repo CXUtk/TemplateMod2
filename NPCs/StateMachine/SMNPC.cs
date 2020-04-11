@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace TemplateMod2.NPCs.StateMachine {
@@ -20,6 +21,9 @@ namespace TemplateMod2.NPCs.StateMachine {
         public int Timer {
             get { return (int)npc.ai[1]; }
             set { npc.ai[1] = value; }
+        }
+        public Player TargetPlayer {
+            get { return Main.player[npc.target]; }
         }
         /// <summary>
         /// 把当前状态变为指定的弹幕状态实例
@@ -45,9 +49,10 @@ namespace TemplateMod2.NPCs.StateMachine {
         /// </summary>
         /// <typeparam name="T">需要注册的<see cref="NPCState"/>类</typeparam>
         /// <param name="state">需要注册的<see cref="NPCState"/>类的实例</param>
-        protected void RegisterState<T>(T state) where T : NPCState {
+        protected void RegisterState<T>() where T : NPCState {
             var name = typeof(T).FullName;
             if (stateDict.ContainsKey(name)) throw new ArgumentException("这个状态已经注册过了");
+            var state = (T)Activator.CreateInstance(typeof(T), new[] { this });
             projStates.Add(state);
             stateDict.Add(name, projStates.Count);
         }

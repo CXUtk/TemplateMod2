@@ -73,7 +73,6 @@ namespace TemplateMod2.NPCs {
         }
 
         public override void FindFrame(int frameHeight) {
-            npc.frame.
             base.FindFrame(frameHeight);
         }
 

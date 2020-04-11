@@ -13,7 +13,6 @@ using Terraria.ModLoader;
 namespace TemplateMod2 {
     public class TemplatePlayer : ModPlayer {
         public override void PostUpdate() {
-            player.HeldItem
             //for (int i = 0; i < 20736000; i++) {
             //    player.statLife += 1;
             //}

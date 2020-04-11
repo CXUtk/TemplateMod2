@@ -45,7 +45,7 @@ namespace TemplateMod2 {
 
         public override void PreUpdateEntities() {
             if (!Filters.Scene["TemplateMod:GBlur"].IsActive()) {
-                Filters.Scene.Activate("TemplateMod:GBlur");
+                // Filters.Scene.Activate("TemplateMod:GBlur");
             }
         }
     }
