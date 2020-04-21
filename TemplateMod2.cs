@@ -1,11 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using TemplateMod2.UI;
+using TemplateMod2.UI.Instances;
 using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ModLoader;
+using Terraria.UI;
 
 // 命名空间，注意它要与文件夹的名字相同
 namespace TemplateMod2 {
@@ -18,6 +23,7 @@ namespace TemplateMod2 {
         public static float Strength;
         public static float Progress;
         public static Effect npcEffect;
+        public static UIStateMachine UIStateMachine;
 
         // 构造函数
         public TemplateMod2() {
@@ -31,7 +37,8 @@ namespace TemplateMod2 {
 
 
             npcEffect = GetEffect("Effects/EDge");
-
+            UIStateMachine = new UIStateMachine();
+            UIStateMachine.Add(new TestState());
 
             base.Load();
         }
@@ -40,7 +47,26 @@ namespace TemplateMod2 {
             Filters.Scene["TemplateMod:GBlur"].Deactivate();
             base.Unload();
         }
-        public override void PostDrawInterface(SpriteBatch spriteBatch) {
+        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+            int mouseLayer = layers.FindIndex((layer) => layer.Name.Equals("Vanilla: Mouse Text"));
+            if (mouseLayer != -1) {
+                layers.Insert(mouseLayer, new LegacyGameInterfaceLayer("TemplateMod: UI",
+                    () => {
+                        try {
+                            UIStateMachine.Draw(Main.spriteBatch);
+                        } catch (Exception ex) {
+                            // Ignored
+                            Logger.Error(ex.ToString());
+                        }
+                        return true;
+                    })
+                );
+            }
+        }
+
+        public override void UpdateUI(GameTime gameTime) {
+            UIStateMachine.Update(gameTime);
+            base.UpdateUI(gameTime);
         }
 
         public override void PreUpdateEntities() {

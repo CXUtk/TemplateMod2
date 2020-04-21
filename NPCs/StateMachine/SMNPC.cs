@@ -11,8 +11,8 @@ namespace TemplateMod2.NPCs.StateMachine {
     /// 基于状态机的ModProjectile类，一定要先在Initialize里注册弹幕的状态才能使用哦
     /// </summary>
     public abstract class SMNPC : ModNPC {
-        public NPCState currentState => projStates[State - 1];
-        private List<NPCState> projStates = new List<NPCState>();
+        public NPCState currentState => npcStates[State - 1];
+        private List<NPCState> npcStates = new List<NPCState>();
         private Dictionary<string, int> stateDict = new Dictionary<string, int>();
         private int State {
             get { return (int)npc.ai[0]; }
@@ -53,8 +53,8 @@ namespace TemplateMod2.NPCs.StateMachine {
             var name = typeof(T).FullName;
             if (stateDict.ContainsKey(name)) throw new ArgumentException("这个状态已经注册过了");
             var state = (T)Activator.CreateInstance(typeof(T), new[] { this });
-            projStates.Add(state);
-            stateDict.Add(name, projStates.Count);
+            npcStates.Add(state);
+            stateDict.Add(name, npcStates.Count);
         }
 
         /// <summary>

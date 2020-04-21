@@ -15,6 +15,8 @@ namespace TemplateMod2.NPCs.StateMachine {
         public abstract void AI(SMNPC mnpc);
     }
 
+
+
     public class EmptyState : NPCState {
         public EmptyState(SMNPC mnpc) : base(mnpc) { }
         public override void AI(SMNPC mnpc) {

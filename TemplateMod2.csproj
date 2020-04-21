@@ -3,7 +3,7 @@
   <Import Project="..\..\references\tModLoader.targets" />
   <PropertyGroup>
     <AssemblyName>TemplateMod2</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -27,5 +27,8 @@
     <None Remove="Effects\Microsoft.Xna.Framework.Graphics.dll" />
     <None Remove="Effects\XNBCompiler.exe" />
     <None Remove="TemplateMod2.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UI\Components\" />
   </ItemGroup>
 </Project>

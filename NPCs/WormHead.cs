@@ -104,8 +104,10 @@ namespace TemplateMod2.NPCs {
                     npc.TargetClosest(true);
                 }
                 if (mnpc.Timer >= 0 && mnpc.Timer < 80) {
-                    if (wmnpc.npc.velocity.Y < 20)
+                    if (wmnpc.npc.velocity.Y < 20) {
+                        wmnpc.npc.velocity.X += 0.5f;
                         wmnpc.npc.velocity.Y += 0.5f;
+                    }
                 } else {
                     wmnpc.MoveToPlayer();
                 }
