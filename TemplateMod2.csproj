@@ -28,7 +28,4 @@
     <None Remove="Effects\XNBCompiler.exe" />
     <None Remove="TemplateMod2.zip" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UI\Components\" />
-  </ItemGroup>
 </Project>

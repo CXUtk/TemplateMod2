@@ -12,6 +12,7 @@ namespace TemplateMod2.UI {
             Pivot = new Vector2(0, 0);
             Width = Main.screenWidth;
             Height = Main.screenHeight;
+            IsVisible = false;
         }
         public override void Update(GameTime gameTime) {
             base.Update(gameTime);

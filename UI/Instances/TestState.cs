@@ -4,15 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Terraria;
 
 namespace TemplateMod2.UI.Instances {
     public class TestState : UIState {
         public TestState() : base() {
             var box1 = new UIElement() {
                 Name = "a",
-                Width = 100,
-                Height = 100,
+                Width = 200,
+                Height = 200,
                 Position = new Vector2(500, 400),
+
+            };
+            var box12 = new UIElement() {
+                Name = "a",
+                Width = 200,
+                Height = 200,
+                Position = new Vector2(650, 400),
+                Rotation = 0.8f,
             };
             var box2 = new UIElement() {
                 Width = 50,
@@ -31,6 +40,7 @@ namespace TemplateMod2.UI.Instances {
                 Height = 50,
                 AnchorPoint = new Vector2(1f, 0f),
                 Pivot = new Vector2(1f, 0f),
+                BlockPropagation = false,
             };
             var box5 = new UIElement() {
                 Width = 50,
@@ -41,22 +51,21 @@ namespace TemplateMod2.UI.Instances {
             var box6 = new UIElement() {
                 Width = 50,
                 Height = 50,
-                AnchorPoint = new Vector2(0.5f, 0.5f),
+                AnchorPoint = new Vector2(0f, 0.5f),
             };
-            box1.OnMouseOver += Box1_OnMouseOver;
             box2.OnMouseOver += Box1_OnMouseOver;
             box3.OnMouseOver += Box1_OnMouseOver;
             box4.OnMouseOver += Box1_OnMouseOver;
             box5.OnMouseOver += Box1_OnMouseOver;
             box6.OnMouseOver += Box1_OnMouseOver;
 
-            box1.OnMouseOut += Box1_OnMouseOut;
             box2.OnMouseOut += Box1_OnMouseOut;
             box3.OnMouseOut += Box1_OnMouseOut;
             box4.OnMouseOut += Box1_OnMouseOut;
             box5.OnMouseOut += Box1_OnMouseOut;
             box6.OnMouseOut += Box1_OnMouseOut;
             AppendChild(box1);
+            AppendChild(box12);
             box1.AppendChild(box2);
             box1.AppendChild(box3);
             box1.AppendChild(box4);
@@ -65,7 +74,7 @@ namespace TemplateMod2.UI.Instances {
         }
 
         private void Box1_OnMouseOver(Events.UIMouseEvent e, UIElement sender) {
-            sender.Width = 100;
+            sender.Width = 200;
         }
 
         private void Box1_OnMouseOut(Events.UIMouseEvent e, UIElement sender) {
@@ -74,6 +83,8 @@ namespace TemplateMod2.UI.Instances {
 
         public override void Update(GameTime gameTime) {
             base.Update(gameTime);
+            // this.GetChildByName("a").Rotation += 0.03f;
+            //Main.NewText();
         }
     }
 }

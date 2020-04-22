@@ -57,14 +57,19 @@ namespace TemplateMod2.UI {
         public int Height { get { return _height; } set { _height = value; calculateScreenPos(); } }
 
         /// <summary>
-        /// 该UI元素相对于自己基准点的位置，不是左上角
+        /// 该UI元素与于自身锚点的相对位置
         /// </summary>
         public Vector2 Position { get { return _position; } set { _position = value; calculateScreenPos(); } }
 
         /// <summary>
-        /// UI元素绕基准点旋转的弧度
+        /// UI元素绕基准点旋转的弧度，注意，如果设置了旋转，就不要设置溢出隐藏了
         /// </summary>
         public float Rotation { get; set; }
+
+        /// <summary>
+        /// UI元素的放大倍率
+        /// </summary>
+        public Vector2 Scale { get; set; }
 
         /// <summary>
         /// UI元素的名字
@@ -81,13 +86,17 @@ namespace TemplateMod2.UI {
         /// </summary>
         public bool BlockPropagation { get; set; }
 
+        public bool ApplyEffectToChildren { get; set; }
+
 
         public event MouseEvent OnMouseOver;
         public event MouseEvent OnMouseOut;
 
         private Vector2 _screenTopLeft;
         private Vector2 _position;
+        private Vector2 _realPosition;
         private int _width, _height;
+        private RasterizerState _selfRasterizerState;
 
 
 
@@ -103,18 +112,22 @@ namespace TemplateMod2.UI {
                 Parent?.MouseOut(e);
         }
 
-
-
         public UIElement ElementAt(Vector2 pos) {
-            Main.NewText(this.HitboxScreen);
+            //Main.NewText(this.HitboxScreen);
             foreach (var child in Children) {
-                if (child.IsActive && child.HitboxScreen.Contains(pos.ToPoint()))
+                if (child.IsActive && child.InnerRectangleScreen.Contains(pos.ToPoint()))
                     return child.ElementAt(pos);
             }
-            if (HitboxScreen.Contains(pos.ToPoint())) return this;
+            if (InnerRectangleScreen.Contains(pos.ToPoint())) return this;
             return null;
         }
 
+
+        public Vector2 TopLeftScreen {
+            get {
+                return _screenTopLeft;
+            }
+        }
 
 
         public Vector2 TopLeft {
@@ -124,14 +137,14 @@ namespace TemplateMod2.UI {
         }
 
 
-        public Rectangle HitboxScreen {
+        public Rectangle InnerRectangleScreen {
             get {
                 return new Rectangle((int)(_screenTopLeft.X),
                     (int)(_screenTopLeft.Y), Width, Height);
             }
         }
 
-        public Vector2 PivotPos {
+        public Vector2 PivotPosScreen {
             get {
                 return _screenTopLeft + new Vector2(Width * Pivot.X, Height * Pivot.Y);
             }
@@ -148,8 +161,11 @@ namespace TemplateMod2.UI {
             return pos;
         }
 
+
         private void calculateScreenPos() {
             _screenTopLeft = getBasePosScreen() + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
+            _realPosition = (Parent == null) ? Position : new Vector2(Parent.Width * AnchorPoint.X, Parent.Height * AnchorPoint.Y)
+                + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
         }
 
         public void Recalculate() {
@@ -167,11 +183,18 @@ namespace TemplateMod2.UI {
             Pivot = new Vector2(0.5f, 0.5f);
             AnchorPoint = Vector2.Zero;
             Position = new Vector2(0, 0);
+            Scale = new Vector2(1f, 1f);
             Parent = null;
             Children = new List<UIElement>();
             IsActive = true;
             IsVisible = true;
             BlockPropagation = true;
+            ApplyEffectToChildren = false;
+            Rotation = 0;
+            _selfRasterizerState = new RasterizerState() {
+                CullMode = CullMode.None,
+                ScissorTestEnable = true,
+            };
 
             Recalculate();
         }
@@ -195,18 +218,85 @@ namespace TemplateMod2.UI {
             Parent?.RemoveChild(this);
         }
 
-        public virtual void Draw(SpriteBatch sb) {
-            DrawSelf(sb);
-            foreach (var child in Children) {
-                if (child.IsActive && child.IsVisible)
-                    child.Draw(sb);
+
+        //public Rectangle GetClippingRectangle(SpriteBatch sb, Matrix currentTransform) {
+        //    Vector2 vector = new Vector2(_screenTopLeft.X, _screenTopLeft.Y);
+        //    Vector2 position = new Vector2(Width, Height) + vector;
+        //    vector = Vector2.Transform(vector, Main.UIScaleMatrix);
+        //    position = Vector2.Transform(position, Main.UIScaleMatrix);
+        //    Rectangle result = new Rectangle((int)vector.X, (int)vector.Y, (int)(position.X - vector.X), (int)(position.Y - vector.Y));
+        //    int width = sb.GraphicsDevice.Viewport.Width;
+        //    int height = sb.GraphicsDevice.Viewport.Height;
+        //    result.X = (int)MathHelper.Clamp(result.X, 0, width);
+        //    result.Y = (int)MathHelper.Clamp(result.Y, 0, height);
+        //    result.Width = (int)MathHelper.Clamp(result.Width, 0, width - result.X);
+        //    result.Height = (int)MathHelper.Clamp(result.Height, 0, height - result.Y);
+        //    return result;
+        //}
+
+        private Matrix GetEffectTranform(Matrix prev) {
+            Matrix curTransform = Matrix.CreateTranslation(new Vector3(_realPosition.X + Width * Pivot.X, _realPosition.Y + Height * Pivot.Y, 0)) * prev;
+            curTransform = Matrix.CreateScale(Scale.X, Scale.Y, 1f) * curTransform;
+            curTransform = Matrix.CreateRotationZ(Rotation) * curTransform;
+            curTransform = Matrix.CreateTranslation(new Vector3(-Width * Pivot.X, -Height * Pivot.Y, 0f)) * curTransform;
+            return curTransform;
+        }
+
+        private Rectangle GetRectIntersections(Rectangle r1, Rectangle r2) {
+            var rect = new Rectangle(Math.Max(r1.X, r2.X),
+                Math.Min(r1.Y, r2.Y), 0, 0);
+            rect.Width = Math.Max(Math.Min(r1.X + r1.Width, r2.X + r2.Width) - rect.X, 0);
+            rect.Height = Math.Max(Math.Max(r1.Y + r1.Height, r2.Y + r2.Height) - rect.Y, 0);
+            return rect;
+        }
+
+        public virtual void Draw(SpriteBatch sb, Matrix transform, RasterizerState rasterizerState) {
+            var curTransform = GetEffectTranform(transform);
+            var defaultScissorRectangle = sb.GraphicsDevice.ScissorRectangle;
+            if (IsVisible) {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                    DepthStencilState.None, rasterizerState, null, curTransform);
+                DrawSelf(sb);
             }
-            if (UIElement.DEBUG_MODE) {
-                Drawing.StrokeRect(sb, HitboxScreen, 1, Color.Red);
+            var defaultTransform = transform * Matrix.CreateTranslation(new Vector3(_realPosition.X, _realPosition.Y, 0));
+            if (ApplyEffectToChildren) {
+                defaultTransform = curTransform;
+            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                DepthStencilState.None, rasterizerState, null, defaultTransform);
+
+            // 如果没有继承效果就把转置效果设为自身左上角
+
+
+            if (Overflow == OverflowType.Hidden) {
+                sb.End();
+                sb.GraphicsDevice.ScissorRectangle = Rectangle.Intersect(sb.GraphicsDevice.ScissorRectangle, InnerRectangleScreen);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                    DepthStencilState.None, _selfRasterizerState, null, transform);
+            }
+            foreach (var child in Children) {
+                if (child.IsActive) {
+                    child.Draw(sb, defaultTransform, _selfRasterizerState);
+                }
+            }
+            if (Overflow == OverflowType.Hidden) {
+                sb.End();
+                var defaultstate = sb.GraphicsDevice.RasterizerState;
+                sb.GraphicsDevice.ScissorRectangle = defaultScissorRectangle;
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                    DepthStencilState.None, defaultstate, null, transform);
+
             }
         }
 
-        public virtual void DrawSelf(SpriteBatch sb) { }
+        public virtual void DrawSelf(SpriteBatch sb) {
+            if (UIElement.DEBUG_MODE) {
+                Drawing.StrokeRect(sb, new Rectangle(0, 0, Width, Height), 1, Color.Red);
+                sb.Draw(Main.magicPixel, new Rectangle(1, 1, Width - 2, Height - 2), Color.White * 0.4f);
+            }
+        }
 
 
         public virtual void Update(GameTime gameTime) {

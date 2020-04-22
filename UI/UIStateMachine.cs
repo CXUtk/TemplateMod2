@@ -12,7 +12,6 @@ namespace TemplateMod2.UI {
     public class UIStateMachine {
         public int ActiveStateNumber => uiRunningStack.Count;
         private List<UIState> uiRunningStack = new List<UIState>();
-        private List<UIState> uiStates = new List<UIState>();
         private UIElement _previousHoverElement;
 
         public UIStateMachine() {
@@ -28,6 +27,7 @@ namespace TemplateMod2.UI {
         }
 
         public void Update(GameTime gameTime) {
+            // 响应鼠标事件的时候一定是从后往前，前端的窗口一定是第一个响应鼠标事件的
             int sz = uiRunningStack.Count;
             UIElement hoverElement = null;
             for (int i = sz - 1; i >= 0; i--) {
@@ -47,7 +47,6 @@ namespace TemplateMod2.UI {
 
             _previousHoverElement = hoverElement;
 
-            // 响应鼠标事件的时候一定是从后往前，前端的窗口一定是第一个响应鼠标事件的
             foreach (var state in uiRunningStack) {
                 if (state.IsActive) {
                     state.Update(gameTime);
@@ -58,8 +57,8 @@ namespace TemplateMod2.UI {
         public void Draw(SpriteBatch sb) {
             // 绘制一定要从前往后，维持父子关系
             foreach (var state in uiRunningStack) {
-                if (state.IsActive && state.IsVisible) {
-                    state.Draw(sb);
+                if (state.IsActive) {
+                    state.Draw(sb, Main.UIScaleMatrix, sb.GraphicsDevice.RasterizerState);
                 }
             }
         }
