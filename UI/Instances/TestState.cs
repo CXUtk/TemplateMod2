@@ -14,7 +14,8 @@ namespace TemplateMod2.UI.Instances {
                 Width = 200,
                 Height = 200,
                 Position = new Vector2(500, 400),
-
+                Rotation = 0.5f,
+                Overflow = OverflowType.Hidden,
             };
             var box12 = new UIElement() {
                 Name = "a",
@@ -81,10 +82,9 @@ namespace TemplateMod2.UI.Instances {
             sender.Width = 50;
         }
 
-        public override void Update(GameTime gameTime) {
-            base.Update(gameTime);
-            // this.GetChildByName("a").Rotation += 0.03f;
-            //Main.NewText();
+        public override void UpdateSelf(GameTime gameTime, Matrix uiMatrix) {
+            base.UpdateSelf(gameTime, uiMatrix);
+            GetChildByName("a").Rotation += 0.02f;
         }
     }
 }

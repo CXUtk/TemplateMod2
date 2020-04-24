@@ -39,12 +39,13 @@ namespace TemplateMod2 {
             npcEffect = GetEffect("Effects/EDge");
             UIStateMachine = new UIStateMachine();
             UIStateMachine.Add(new TestState());
-
+            //Main.graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
             base.Load();
         }
         public override void Unload() {
             Instance = null;
             Filters.Scene["TemplateMod:GBlur"].Deactivate();
+            //Main.graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
             base.Unload();
         }
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
@@ -67,6 +68,19 @@ namespace TemplateMod2 {
         public override void UpdateUI(GameTime gameTime) {
             UIStateMachine.Update(gameTime);
             base.UpdateUI(gameTime);
+        }
+
+        public override void PostDrawInterface(SpriteBatch spriteBatch) {
+            //RenderTarget2D tmp = new RenderTarget2D(spriteBatch.GraphicsDevice, 100, 100);
+            //spriteBatch.End();
+            //spriteBatch.GraphicsDevice.SetRenderTarget(tmp);
+            //spriteBatch.Begin();
+            //spriteBatch.Draw(Main.magicPixel, new Rectangle(0, 0, 50, 50), Color.Red);
+            //spriteBatch.End();
+            //spriteBatch.GraphicsDevice.SetRenderTarget(null);
+            //spriteBatch.Begin();
+            //spriteBatch.Draw(Main.screenTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
+            //spriteBatch.Draw(tmp, new Rectangle(0, 0, 100, 100), Color.White);
         }
 
         public override void PreUpdateEntities() {

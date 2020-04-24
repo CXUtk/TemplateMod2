@@ -40,25 +40,31 @@ namespace TemplateMod2.UI {
                     }
                 }
             }
+            bool mouseLeftDown = Main.mouseLeft && Main.hasFocus;
             if (hoverElement != null)
                 hoverElement.MouseOver(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
             if (_previousHoverElement != null && hoverElement != _previousHoverElement)
                 _previousHoverElement.MouseOut(new UIMouseEvent(_previousHoverElement, gameTime.TotalGameTime, Main.MouseScreen));
-
+            //if (mouseLeftDown && hoverElement != null)
+            //    hoverElement.MouseDown(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+            //if (Main.mouseLeftRelease && hoverElement != null)
+            //    hoverElement.MouseUp(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
             _previousHoverElement = hoverElement;
-
             foreach (var state in uiRunningStack) {
                 if (state.IsActive) {
-                    state.Update(gameTime);
+                    state.Update(gameTime, Main.UIScaleMatrix);
+                    state.Recalculate();
                 }
             }
         }
 
         public void Draw(SpriteBatch sb) {
+
+
             // 绘制一定要从前往后，维持父子关系
             foreach (var state in uiRunningStack) {
                 if (state.IsActive) {
-                    state.Draw(sb, Main.UIScaleMatrix, sb.GraphicsDevice.RasterizerState);
+                    state.Draw(sb);
                 }
             }
         }

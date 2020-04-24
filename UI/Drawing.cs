@@ -24,5 +24,10 @@ namespace TemplateMod2.UI {
             DrawStraightLine(sb, rect.BottomRight(), rect.BottomLeft(), lineWidth, color);
             DrawStraightLine(sb, rect.BottomLeft(), rect.TopLeft(), lineWidth, color);
         }
+        public static void StrokePolygon(SpriteBatch sb, List<Vector2> points, int lineWidth = 1, Color color = default(Color)) {
+            for (int i = 0; i < points.Count; i++) {
+                DrawStraightLine(sb, points[i], points[(i + 1) % points.Count], lineWidth, color);
+            }
+        }
     }
 }

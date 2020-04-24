@@ -14,11 +14,9 @@ namespace TemplateMod2.UI {
             Height = Main.screenHeight;
             IsVisible = false;
         }
-        public override void Update(GameTime gameTime) {
-            base.Update(gameTime);
+        public override void UpdateSelf(GameTime gameTime, Matrix uiMatrix) {
             Width = Main.screenWidth;
             Height = Main.screenHeight;
-            Recalculate();
         }
     }
 }
