@@ -63,7 +63,7 @@ namespace TemplateMod2.UI.Hitbox {
                 maxX = Math.Max(maxX, pt.X);
                 maxY = Math.Max(maxY, pt.Y);
             }
-            return new Rectangle((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
+            return new Rectangle((int)minX, (int)minY, (int)(maxX - minX + 1), (int)(maxY - minY + 1));
         }
 
         public override string ToString() {

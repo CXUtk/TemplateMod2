@@ -14,12 +14,17 @@ namespace TemplateMod2.UI {
         private List<UIState> uiRunningStack = new List<UIState>();
         private UIElement _previousHoverElement;
 
-        public UIStateMachine() {
+        private bool _wasMouseDown;
+        private UIElement _lastDownElement;
 
+        public UIStateMachine() {
+            _wasMouseDown = false;
+            _previousHoverElement = null;
         }
 
         public void Add<T>(T state) where T : UIState {
             uiRunningStack.Add(state);
+            state.Recalculate();
         }
 
         public void Remove<T>(T state) where T : UIState {
@@ -27,6 +32,7 @@ namespace TemplateMod2.UI {
         }
 
         public void Update(GameTime gameTime) {
+            Recalculate();
             // 响应鼠标事件的时候一定是从后往前，前端的窗口一定是第一个响应鼠标事件的
             int sz = uiRunningStack.Count;
             UIElement hoverElement = null;
@@ -45,22 +51,38 @@ namespace TemplateMod2.UI {
                 hoverElement.MouseOver(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
             if (_previousHoverElement != null && hoverElement != _previousHoverElement)
                 _previousHoverElement.MouseOut(new UIMouseEvent(_previousHoverElement, gameTime.TotalGameTime, Main.MouseScreen));
-            //if (mouseLeftDown && hoverElement != null)
-            //    hoverElement.MouseDown(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
-            //if (Main.mouseLeftRelease && hoverElement != null)
-            //    hoverElement.MouseUp(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+
+            if (mouseLeftDown && hoverElement != null) {
+                hoverElement.MouseDown(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+                _lastDownElement = hoverElement;
+            }
+            if (_wasMouseDown && Main.mouseLeftRelease && hoverElement != null) {
+                hoverElement.MouseUp(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+                if (_wasMouseDown && Main.mouseLeftRelease && hoverElement != null && _lastDownElement == hoverElement) {
+                    hoverElement.MouseClick(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+                }
+            }
+
             _previousHoverElement = hoverElement;
             foreach (var state in uiRunningStack) {
                 if (state.IsActive) {
-                    state.Update(gameTime, Main.UIScaleMatrix);
+                    state.Update(gameTime);
+                }
+            }
+            Recalculate();
+
+            _wasMouseDown = Main.mouseLeft;
+        }
+
+        private void Recalculate() {
+            foreach (var state in uiRunningStack) {
+                if (state.IsActive) {
                     state.Recalculate();
                 }
             }
         }
 
         public void Draw(SpriteBatch sb) {
-
-
             // 绘制一定要从前往后，维持父子关系
             foreach (var state in uiRunningStack) {
                 if (state.IsActive) {

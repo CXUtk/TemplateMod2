@@ -10,13 +10,13 @@ namespace TemplateMod2.UI {
     public class UIState : UIElement {
         public UIState() : base() {
             Pivot = new Vector2(0, 0);
-            Width = Main.screenWidth;
-            Height = Main.screenHeight;
+            SizeFactor = new Vector2(1, 1);
             IsVisible = false;
+
+            Initialize();
+            Recalculate();
         }
-        public override void UpdateSelf(GameTime gameTime, Matrix uiMatrix) {
-            Width = Main.screenWidth;
-            Height = Main.screenHeight;
-        }
+
+        public virtual void Initialize() { }
     }
 }

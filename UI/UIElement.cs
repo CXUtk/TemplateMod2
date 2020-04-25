@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using TemplateMod2.UI.Events;
 using TemplateMod2.UI.Hitbox;
 using Terraria;
+using Newtonsoft.Json;
 
 namespace TemplateMod2.UI {
     public class UIElement {
         public delegate void MouseEvent(UIMouseEvent e, UIElement sender);
 
-        public static bool DEBUG_MODE = true;
+        public static bool DEBUG_MODE = false;
 
+
+        #region 基础属性
         /// <summary>
         /// UI元素是否处于激活状态，如果不激活则不会显示也不会响应任何事件
         /// </summary>
@@ -25,6 +28,7 @@ namespace TemplateMod2.UI {
         /// </summary>
         public bool IsVisible { get; set; }
 
+        [JsonIgnore]
         /// <summary>
         /// 该UI节点的父节点
         /// </summary>
@@ -36,31 +40,31 @@ namespace TemplateMod2.UI {
         private List<UIElement> Children { get; set; }
 
         /// <summary>
-        /// 该UI节点的基准点位置，计算位置旋转等时会以此位置为原点
+        /// 该UI节点的基准点位置，计算位置旋转等时会以此位置为原点，
         /// X和Y的值一般为0到1的浮点数，代表节点的比例位置
         /// </summary>
         public Vector2 Pivot { get; set; }
 
         /// <summary>
-        /// UI元素的锚点，也就是其基准点相对于父节点的位置
+        /// UI元素的锚点，也就是其基准点相对于父节点的位置，
         /// X和Y的值一般为0到1的浮点数，代表父节点的比例位置
         /// </summary>
         public Vector2 AnchorPoint { get; set; }
 
         /// <summary>
-        /// 该UI元素的宽度
+        /// 该UI元素的宽度，高度
         /// </summary>
-        public int Width { get { return _width; } set { _width = value; } }
+        public Vector2 Size { get; set; }
 
         /// <summary>
-        /// 该UI元素的高度
+        /// 该UI元素相对于父节点的宽度，高度
         /// </summary>
-        public int Height { get { return _height; } set { _height = value; } }
+        public Vector2 SizeFactor { get; set; }
 
         /// <summary>
         /// 该UI元素与于自身锚点的相对位置
         /// </summary>
-        public Vector2 Position { get { return _position; } set { _position = value; } }
+        public Vector2 Position { get; set; }
 
         /// <summary>
         /// UI元素绕基准点旋转的弧度，注意，如果设置了旋转，就不要设置溢出隐藏了
@@ -87,64 +91,153 @@ namespace TemplateMod2.UI {
         /// </summary>
         public bool BlockPropagation { get; set; }
 
+        /// <summary>
+        /// 这个UI元素是否会响应事件
+        /// </summary>
+        public bool NoEvent { get; set; }
 
+
+
+        public int MarginLeft { get; set; }
+        public int MarginRight { get; set; }
+        public int MarginTop { get; set; }
+        public int MarginBottom { get; set; }
+
+
+        public int PaddingLeft { get; set; }
+        public int PaddingRight { get; set; }
+        public int PaddingTop { get; set; }
+        public int PaddingBottom { get; set; }
+        #endregion
+
+
+        #region 事件
         public event MouseEvent OnMouseOver;
         public event MouseEvent OnMouseOut;
+        public event MouseEvent OnMouseDown;
+        public event MouseEvent OnMouseUp;
+        public event MouseEvent OnClick;
+        #endregion
 
-        private Vector2 _screenTopLeft;
-        private Vector2 _position;
+
+        #region 派生属性
+        public Rectangle OuterRectangleScreen {
+            get {
+                return _selfHitbox.GetOuterRectangle();
+            }
+        }
+        public Rectangle BaseRectangleScreen {
+            get {
+                return new Rectangle((int)(_baseTopLeftScreen.X), (int)(_baseTopLeftScreen.Y), Width, Height);
+            }
+        }
+        public Rectangle InnerRectangleScreen {
+            get {
+                return new Rectangle((int)(_baseTopLeftScreen.X), (int)(_baseTopLeftScreen.Y), Width, Height);
+            }
+        }
+
+        protected int Width {
+            get {
+                return (int)(SizeFactor.X * getParentRect().Width + Size.X);
+            }
+        }
+        protected int Height {
+            get {
+                return (int)(SizeFactor.Y * getParentRect().Height + Size.Y);
+            }
+        }
+        #endregion
+
+
+        private Rectangle getParentRect() {
+            return Parent == null ? new Rectangle(0, 0, Main.screenWidth, Main.screenHeight) :
+                Parent.InnerRectangleScreen;
+        }
+
+        private Vector2 getBaseRectScreen() {
+            var rect = getParentRect();
+            Vector2 pos = rect.TopLeft();
+            pos += new Vector2(rect.Width * AnchorPoint.X, rect.Height * AnchorPoint.Y);
+            return pos;
+        }
+
+        public virtual void Recalculate() {
+            _baseTopLeftScreen = getBaseRectScreen() + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
+            _realPosition = (Parent == null) ? Position : new Vector2(Parent.Width * AnchorPoint.X, Parent.Height * AnchorPoint.Y)
+                + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
+
+            _selfTransform = Main.UIScaleMatrix;
+            if (Parent != null) _selfTransform = Parent._selfTransform;
+            _selfTransform = ApplyTransform(_selfTransform);
+            _selfHitbox.Reset(Width, Height);
+            _selfHitbox.Transform(_selfTransform);
+            RecalculateChildren();
+        }
+
+
+        private Vector2 _baseTopLeftScreen;
         private Vector2 _realPosition;
         private QuadrilateralHitbox _selfHitbox;
         private Matrix _selfTransform;
 
-        private int _width, _height;
         private RasterizerState _selfRasterizerState;
 
 
 
         public void MouseOver(UIMouseEvent e) {
-
+            // Main.NewText("进入");
             OnMouseOver?.Invoke(e, this);
             if (!BlockPropagation)
                 Parent?.MouseOver(e);
         }
 
         public void MouseOut(UIMouseEvent e) {
+            //Main.NewText("离开");
             OnMouseOut?.Invoke(e, this);
             if (!BlockPropagation)
                 Parent?.MouseOut(e);
         }
 
+        public void MouseDown(UIMouseEvent e) {
+            //Main.NewText("按下");
+            OnMouseDown?.Invoke(e, this);
+            if (!BlockPropagation)
+                Parent?.MouseDown(e);
+        }
+
+        public void MouseUp(UIMouseEvent e) {
+            //Main.NewText("抬起");
+            OnMouseUp?.Invoke(e, this);
+            if (!BlockPropagation)
+                Parent?.MouseUp(e);
+        }
+        public void MouseClick(UIMouseEvent e) {
+            //Main.NewText("点击");
+            OnClick?.Invoke(e, this);
+            if (!BlockPropagation)
+                Parent?.MouseClick(e);
+        }
+
         public UIElement ElementAt(Vector2 pos) {
+            UIElement target = null;
             foreach (var child in Children) {
-                if (child.IsActive && child._selfHitbox.Contains(pos))
-                    return child.ElementAt(pos);
+                if (child.IsActive && child._selfHitbox.Contains(pos)) {
+                    var tmp = child.ElementAt(pos);
+                    if (tmp != null) {
+                        target = tmp;
+                        break;
+                    }
+                }
             }
-            if (_selfHitbox.Contains(pos)) return this;
-            return null;
+            if (target != null) return target;
+            if (_selfHitbox.Contains(pos) && !NoEvent) {
+                return this;
+            }
+            return target;
         }
 
 
-        public Vector2 TopLeftScreen {
-            get {
-                return _screenTopLeft;
-            }
-        }
-
-
-        public Vector2 TopLeft {
-            get {
-                return new Vector2(_position.X - Width * Pivot.X, _position.Y - Height * Pivot.Y);
-            }
-        }
-
-
-        public Rectangle InnerRectangleScreen {
-            get {
-                return new Rectangle((int)(_screenTopLeft.X),
-                    (int)(_screenTopLeft.Y), Width, Height);
-            }
-        }
 
         public IHitBox ScreenHitBox {
             get {
@@ -154,32 +247,8 @@ namespace TemplateMod2.UI {
 
         public Vector2 PivotPosScreen {
             get {
-                return _screenTopLeft + new Vector2(Width * Pivot.X, Height * Pivot.Y);
+                return _baseTopLeftScreen + new Vector2(Width * Pivot.X, Height * Pivot.Y);
             }
-        }
-
-        private Vector2 getBasePosScreen() {
-            Vector2 pos = (Parent == null) ? Vector2.Zero : Parent._screenTopLeft;
-            int pw = Main.screenWidth, ph = Main.screenHeight;
-            if (Parent != null) {
-                pw = Parent.Width;
-                ph = Parent.Height;
-            }
-            pos += new Vector2(pw * AnchorPoint.X, ph * AnchorPoint.Y);
-            return pos;
-        }
-
-
-        public void Recalculate() {
-            _screenTopLeft = getBasePosScreen() + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
-            _realPosition = (Parent == null) ? Position : new Vector2(Parent.Width * AnchorPoint.X, Parent.Height * AnchorPoint.Y)
-                + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
-            _selfTransform = Main.UIScaleMatrix;
-            if (Parent != null) _selfTransform = Parent._selfTransform;
-            _selfTransform = ApplyTransform(_selfTransform);
-            _selfHitbox.Reset(Width, Height);
-            _selfHitbox.Transform(_selfTransform);
-            RecalculateChildren();
         }
 
         public void RecalculateChildren() {
@@ -189,6 +258,7 @@ namespace TemplateMod2.UI {
         }
 
         public UIElement() {
+            Name = "UI元素";
             Pivot = new Vector2(0.5f, 0.5f);
             AnchorPoint = Vector2.Zero;
             Position = new Vector2(0, 0);
@@ -199,6 +269,7 @@ namespace TemplateMod2.UI {
             IsVisible = true;
             BlockPropagation = true;
             Rotation = 0;
+            NoEvent = false;
             _selfRasterizerState = new RasterizerState() {
                 CullMode = CullMode.None,
                 ScissorTestEnable = true,
@@ -228,7 +299,7 @@ namespace TemplateMod2.UI {
 
 
         public Rectangle GetClippingRectangle(SpriteBatch sb) {
-            return Rectangle.Intersect(sb.GraphicsDevice.ScissorRectangle, _selfHitbox.GetOuterRectangle());
+            return Rectangle.Intersect(sb.GraphicsDevice.ScissorRectangle, OuterRectangleScreen);
         }
 
         private Matrix ApplyTransform(Matrix prev) {
@@ -239,24 +310,17 @@ namespace TemplateMod2.UI {
             return curTransform;
         }
         public virtual void Draw(SpriteBatch sb) {
-            if (DEBUG_MODE) {
-                sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
-                    DepthStencilState.None, _selfRasterizerState, null, Main.UIScaleMatrix);
-                _selfHitbox.Draw(sb);
-                Drawing.StrokeRect(sb, GetClippingRectangle(sb), 1, Color.Yellow);
-            }
             Rectangle scissorRectangle = sb.GraphicsDevice.ScissorRectangle;
             if (IsVisible) {
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
-                DepthStencilState.None, _selfRasterizerState, null, _selfTransform);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, _selfRasterizerState, null, _selfTransform);
                 DrawSelf(sb);
             }
             if (Overflow == OverflowType.Hidden) {
                 sb.End();
                 sb.GraphicsDevice.ScissorRectangle = Rectangle.Intersect(sb.GraphicsDevice.ScissorRectangle, GetClippingRectangle(sb));
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, _selfRasterizerState, null, _selfTransform);
             }
             foreach (var child in Children) {
@@ -268,8 +332,15 @@ namespace TemplateMod2.UI {
                 sb.End();
                 var defaultstate = sb.GraphicsDevice.RasterizerState;
                 sb.GraphicsDevice.ScissorRectangle = scissorRectangle;
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.AnisotropicClamp,
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                     DepthStencilState.None, defaultstate, null, _selfTransform);
+            }
+            if (DEBUG_MODE) {
+                sb.End();
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.None, _selfRasterizerState, null, Main.UIScaleMatrix);
+                _selfHitbox.Draw(sb);
+                Drawing.StrokeRect(sb, GetClippingRectangle(sb), 1, Color.Yellow);
             }
         }
 
@@ -279,17 +350,16 @@ namespace TemplateMod2.UI {
             }
         }
 
-        public virtual void UpdateSelf(GameTime gameTime, Matrix uiMatrix) { }
+        public virtual void UpdateSelf(GameTime gameTime) { }
 
-        public void Update(GameTime gameTime, Matrix uiMatrix) {
-            UpdateSelf(gameTime, uiMatrix);
+        public void Update(GameTime gameTime) {
+            UpdateSelf(gameTime);
             foreach (var child in Children) {
                 if (child.IsActive) {
-                    child.Update(gameTime, uiMatrix);
+                    child.Update(gameTime);
                 }
             }
         }
-
 
         public override string ToString() {
             return $"Type: {GetType().Name}, Name: {Name}";

@@ -18,4 +18,16 @@ namespace TemplateMod2.UI {
         /// </summary>
         Hidden,
     }
+
+    public enum SizeStyle {
+        Block,
+        Inline
+    }
+
+
+    public enum TransitionFunction {
+        Linear,
+        QuadraticIn,
+        QuadraticOut,
+    }
 }
