@@ -13,8 +13,9 @@ using Newtonsoft.Json;
 namespace TemplateMod2.UI {
     public class UIElement {
         public delegate void MouseEvent(UIMouseEvent e, UIElement sender);
+        public delegate void ActionEvent(UIActionEvent e, UIElement sender);
 
-        public static bool DEBUG_MODE = false;
+        public static bool DEBUG_MODE = true;
 
 
         #region 基础属性
@@ -112,6 +113,7 @@ namespace TemplateMod2.UI {
 
 
         #region 事件
+        public event MouseEvent OnMouseEnter;
         public event MouseEvent OnMouseOver;
         public event MouseEvent OnMouseOut;
         public event MouseEvent OnMouseDown;
@@ -158,13 +160,13 @@ namespace TemplateMod2.UI {
         private Vector2 getBaseRectScreen() {
             var rect = getParentRect();
             Vector2 pos = rect.TopLeft();
-            pos += new Vector2(rect.Width * AnchorPoint.X, rect.Height * AnchorPoint.Y);
+            pos += rect.Size() * AnchorPoint;
             return pos;
         }
 
         public virtual void Recalculate() {
-            _baseTopLeftScreen = getBaseRectScreen() + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
-            _realPosition = (Parent == null) ? Position : new Vector2(Parent.Width * AnchorPoint.X, Parent.Height * AnchorPoint.Y)
+            _baseTopLeftScreen = getBaseRectScreen() + Position - PivotOffset;
+            _realPosition = (Parent == null) ? Position : new Vector2(Parent.Width, Parent.Height) * AnchorPoint
                 + Position - new Vector2(Width * Pivot.X, Height * Pivot.Y);
 
             _selfTransform = Main.UIScaleMatrix;
@@ -185,11 +187,11 @@ namespace TemplateMod2.UI {
 
 
 
-        public void MouseOver(UIMouseEvent e) {
+        public void MouseEnter(UIMouseEvent e) {
             // Main.NewText("进入");
-            OnMouseOver?.Invoke(e, this);
+            OnMouseEnter?.Invoke(e, this);
             if (!BlockPropagation)
-                Parent?.MouseOver(e);
+                Parent?.MouseEnter(e);
         }
 
         public void MouseOut(UIMouseEvent e) {
@@ -221,7 +223,9 @@ namespace TemplateMod2.UI {
 
         public UIElement ElementAt(Vector2 pos) {
             UIElement target = null;
-            foreach (var child in Children) {
+            int sz = Children.Count;
+            for (int i = sz - 1; i >= 0; i--) {
+                var child = Children[i];
                 if (child.IsActive && child._selfHitbox.Contains(pos)) {
                     var tmp = child.ElementAt(pos);
                     if (tmp != null) {
@@ -238,6 +242,20 @@ namespace TemplateMod2.UI {
         }
 
 
+        private Vector2 PivotOffset {
+            get {
+                return new Vector2(Width * Pivot.X, Height * Pivot.Y);
+            }
+        }
+
+        public Vector2 ScreenPositionToNode(Vector2 worldPos) {
+            return worldPos - (_baseTopLeftScreen - Position + PivotOffset);
+        }
+
+        //public Vector2 NodePositionToScreen(Vector2 worldPos) {
+        //    return _baseTopLeftScreen - PivotOffset;
+        //}
+
 
         public IHitBox ScreenHitBox {
             get {
@@ -245,9 +263,12 @@ namespace TemplateMod2.UI {
             }
         }
 
-        public Vector2 PivotPosScreen {
+        public Vector2 PostionScreen {
             get {
-                return _baseTopLeftScreen + new Vector2(Width * Pivot.X, Height * Pivot.Y);
+                return _baseTopLeftScreen + PivotOffset;
+            }
+            set {
+                Position = ScreenPositionToNode(value);
             }
         }
 
@@ -267,7 +288,6 @@ namespace TemplateMod2.UI {
             Children = new List<UIElement>();
             IsActive = true;
             IsVisible = true;
-            BlockPropagation = true;
             Rotation = 0;
             NoEvent = false;
             _selfRasterizerState = new RasterizerState() {

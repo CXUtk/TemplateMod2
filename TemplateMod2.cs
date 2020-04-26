@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TemplateMod2.UI;
-using TemplateMod2.UI.Instances;
+using TemplateMod2.UI.Tests;
 using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
@@ -39,6 +39,7 @@ namespace TemplateMod2 {
             npcEffect = GetEffect("Effects/EDge");
             UIStateMachine = new UIStateMachine();
             UIStateMachine.Add(new TestState());
+            UIStateMachine.Add(new TestState2());
             //Main.graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
             base.Load();
         }

@@ -12,10 +12,12 @@ namespace TemplateMod2.UI {
         public static Texture2D PanelDefaultBackTexture;
         public static Texture2D ButtonDefaultBackTexture;
         public static Texture2D DefaultBoxTexture;
+        public static Texture2D CloseButtonTexture;
         static Drawing() {
             PanelDefaultBackTexture = TemplateMod2.Instance.GetTexture("Images/AdvInvBack1");
             ButtonDefaultBackTexture = TemplateMod2.Instance.GetTexture("Images/AdvInvBack1");
             DefaultBoxTexture = TemplateMod2.Instance.GetTexture("Images/Box");
+            CloseButtonTexture = TemplateMod2.Instance.GetTexture("Images/CloseButton");
         }
         public static Color DefaultBoxColor {
             get {

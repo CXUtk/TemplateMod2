@@ -12,18 +12,23 @@ namespace TemplateMod2.UI {
     public class UIStateMachine {
         public int ActiveStateNumber => uiRunningStack.Count;
         private List<UIState> uiRunningStack = new List<UIState>();
+        private List<UIState> uiStates = new List<UIState>();
         private UIElement _previousHoverElement;
 
         private bool _wasMouseDown;
         private UIElement _lastDownElement;
+        private long _timer;
+        private UIState _currentFocus;
 
         public UIStateMachine() {
             _wasMouseDown = false;
             _previousHoverElement = null;
+            _timer = 0;
         }
 
         public void Add<T>(T state) where T : UIState {
-            uiRunningStack.Add(state);
+            uiStates.Add(state);
+            state.TimeGetFocus = _timer;
             state.Recalculate();
         }
 
@@ -32,7 +37,10 @@ namespace TemplateMod2.UI {
         }
 
         public void Update(GameTime gameTime) {
+            _timer++;
             Recalculate();
+            ReorderRunningStack();
+            bool mouseLeftDown = Main.mouseLeft && Main.hasFocus;
             // 响应鼠标事件的时候一定是从后往前，前端的窗口一定是第一个响应鼠标事件的
             int sz = uiRunningStack.Count;
             UIElement hoverElement = null;
@@ -42,17 +50,20 @@ namespace TemplateMod2.UI {
                     var element = state.ElementAt(Main.MouseScreen);
                     if (element != state) {
                         hoverElement = element;
+                        if (mouseLeftDown) {
+                            _currentFocus = state;
+                            _currentFocus.TimeGetFocus = _timer;
+                        }
                         break;
                     }
                 }
             }
-            bool mouseLeftDown = Main.mouseLeft && Main.hasFocus;
-            if (hoverElement != null)
-                hoverElement.MouseOver(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
+            if (hoverElement != null && hoverElement != _previousHoverElement)
+                hoverElement.MouseEnter(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
             if (_previousHoverElement != null && hoverElement != _previousHoverElement)
                 _previousHoverElement.MouseOut(new UIMouseEvent(_previousHoverElement, gameTime.TotalGameTime, Main.MouseScreen));
 
-            if (mouseLeftDown && hoverElement != null) {
+            if (!_wasMouseDown && mouseLeftDown && hoverElement != null) {
                 hoverElement.MouseDown(new UIMouseEvent(hoverElement, gameTime.TotalGameTime, Main.MouseScreen));
                 _lastDownElement = hoverElement;
             }
@@ -72,6 +83,16 @@ namespace TemplateMod2.UI {
             Recalculate();
 
             _wasMouseDown = Main.mouseLeft;
+        }
+
+        private void ReorderRunningStack() {
+            uiRunningStack.Clear();
+            uiStates.Sort();
+            foreach (var state in uiStates) {
+                if (state.IsActive) {
+                    uiRunningStack.Add(state);
+                }
+            }
         }
 
         private void Recalculate() {

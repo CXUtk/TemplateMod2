@@ -15,7 +15,7 @@ namespace TemplateMod2.UI.Components {
         public bool IsLargeText { get; set; }
         public SizeStyle SizeStyle { get; set; }
 
-        public UILabel() {
+        public UILabel() : base() {
             Text = "文字";
             TextScale = 1f;
             TextColor = Color.White;

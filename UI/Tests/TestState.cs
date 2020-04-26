@@ -5,19 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using TemplateMod2.UI.Components;
+using TemplateMod2.UI.Components.Composite;
 using Terraria;
 
-namespace TemplateMod2.UI.Instances {
+namespace TemplateMod2.UI.Tests {
     public class TestState : UIState {
         public override void Initialize() {
             base.Initialize();
-            var box1 = new UIPanel() {
+            var box1 = new UIWindow() {
                 Name = "a",
-                Size = new Vector2(200, 200),
-                Position = new Vector2(500, 400),
+                Size = new Vector2(0, 0),
+                AnchorPoint = new Vector2(0.5f, 0.5f),
+                SizeFactor = new Vector2(0.5f, 0.5f),
                 //Rotation = 0.5f,
                 //Overflow = OverflowType.Hidden,
             };
+            box1.OnClose += Box1_OnClose;
             var box12 = new UILabel() {
                 Name = "label",
                 Text = "哈哈哈哈",
@@ -25,28 +28,22 @@ namespace TemplateMod2.UI.Instances {
                 AnchorPoint = new Vector2(0.5f, 0.5f),
                 //Rotation = 0.5f
             };
-            var box2 = new UITextButton() {
+            var box2 = new UIButton() {
                 Size = new Vector2(100, 50),
                 AnchorPoint = new Vector2(0f, 0f),
                 Pivot = new Vector2(0f, 0f),
             };
-            var box3 = new UITextButton() {
+            var box3 = new UIButton() {
                 Size = new Vector2(50, 50),
                 AnchorPoint = new Vector2(0f, 1f),
                 Pivot = new Vector2(0f, 1f),
             };
-            var box4 = new UITextButton() {
-                Size = new Vector2(50, 50),
-                AnchorPoint = new Vector2(1f, 0f),
-                Pivot = new Vector2(1f, 0f),
-                BlockPropagation = false,
-            };
-            var box5 = new UITextButton() {
+            var box5 = new UIButton() {
                 Size = new Vector2(50, 50),
                 AnchorPoint = new Vector2(1f, 1f),
                 Pivot = new Vector2(1f, 1f),
             };
-            var box6 = new UITextButton() {
+            var box6 = new UIButton() {
                 Size = new Vector2(50, 50),
                 AnchorPoint = new Vector2(0f, 0.5f),
             };
@@ -54,9 +51,12 @@ namespace TemplateMod2.UI.Instances {
             box1.AppendChild(box12);
             box1.AppendChild(box2);
             box1.AppendChild(box3);
-            box1.AppendChild(box4);
             box1.AppendChild(box5);
             box1.AppendChild(box6);
+        }
+
+        private void Box1_OnClose(Events.UIActionEvent e, UIElement sender) {
+            this.IsActive = false;
         }
 
         public override void UpdateSelf(GameTime gameTime) {

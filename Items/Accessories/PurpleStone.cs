@@ -57,6 +57,7 @@ namespace TemplateMod2.Items.Accessories {
                 player.gravDir = 1;
                 player.noFallDmg = true;
             }
+            player.wingTimeMax = 100;
         }
         public override void UseStyle(Player player) {
             base.UseStyle(player);

@@ -5,16 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 
 namespace TemplateMod2.UI.Components {
-    public class UITextButton : UIPanel {
+    public abstract class UIButtonBase : UIElement {
+
+    }
+    public class UIButton : UIPanel {
         public string Text { get; set; }
         public bool DrawPanel { get; set; }
         public bool IsLargeText { get; set; }
-        public Color TextColor { get; set; }
-        public Color DefaultColor { get; set; }
-        public Color MouseMoveColor { get; set; }
-        public Color MouseDownColor { get; set; }
+        public Color PanelDefaultColor { get; set; }
+        public Color PanelMouseOverColor { get; set; }
+        public Color TextDefaultColor { get; set; }
+        public Color TextMouseOverColor { get; set; }
 
         private UILabel _label;
         private bool _isMouseOver;
@@ -24,22 +28,24 @@ namespace TemplateMod2.UI.Components {
             _label.Text = this.Text;
             _label.AnchorPoint = new Vector2(0.5f, 0.5f);
             _label.IsLargeText = this.IsLargeText;
-            _label.TextColor = this.TextColor;
+            _label.TextColor = this.TextDefaultColor;
             _label.BlockPropagation = false;
             _label.NoEvent = true;
         }
-        public UITextButton() : base() {
+        public UIButton() : base() {
             Text = "按钮";
             DrawPanel = true;
-            TextColor = Color.White;
-            DefaultColor = Color.WhiteSmoke;
-            Color = DefaultColor;
-            MouseMoveColor = Color.White;
-            MouseDownColor = Color.White;
+            PanelDefaultColor = Color.Gray * 1.2f;
+            PanelMouseOverColor = Color.White;
+
+            TextDefaultColor = Color.White;
+            TextMouseOverColor = Color.Yellow;
+            Color = PanelDefaultColor;
+
             _label = new UILabel();
             SyncToLabel();
             this.AppendChild(_label);
-            this.OnMouseOver += UITextButton_OnMouseOver;
+            this.OnMouseEnter += UITextButton_OnMouseEnter;
             this.OnMouseOut += UITextButton_OnMouseOut;
         }
 
@@ -47,8 +53,9 @@ namespace TemplateMod2.UI.Components {
             _isMouseOver = false;
         }
 
-        private void UITextButton_OnMouseOver(Events.UIMouseEvent e, UIElement sender) {
+        private void UITextButton_OnMouseEnter(Events.UIMouseEvent e, UIElement sender) {
             _isMouseOver = true;
+            Main.PlaySound(12);
         }
         public override void UpdateSelf(GameTime gameTime) {
             base.UpdateSelf(gameTime);
@@ -58,8 +65,9 @@ namespace TemplateMod2.UI.Components {
             else if (!_isMouseOver && _timer > 0)
                 _timer--;
             float factor = _timer / 15f;
-            this.Color = Color.Lerp(DefaultColor, MouseMoveColor, factor);
-            this.Scale = new Vector2(1 + _timer / 100f, 1 + _timer / 100f);
+            this.Color = Color.Lerp(PanelDefaultColor, PanelMouseOverColor, factor);
+            //this.Scale = new Vector2(1 + _timer / 100f, 1 + _timer / 100f);
+            this._label.TextColor = Color.Lerp(TextDefaultColor, TextMouseOverColor, factor);
         }
 
         public override void DrawSelf(SpriteBatch sb) {
